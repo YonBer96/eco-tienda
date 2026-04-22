@@ -18,9 +18,10 @@ def _load_local_env(base_dir):
 
 _load_local_env(BASE_DIR)
 
-SECRET_KEY = 'django-insecure-change-me'
-DEBUG = True
-ALLOWED_HOSTS = ['*']
+SECRET_KEY = os.getenv("SECRET_KEY", "cambia-esto-en-render")
+
+DEBUG = os.getenv("DEBUG", "True") == "True"
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", ".onrender.com"]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -100,9 +101,12 @@ LOGOUT_REDIRECT_URL = 'login'
 APP_DISPLAY_NAME = os.getenv('APP_DISPLAY_NAME', 'La Foresta Agroecológica')
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'marcos@laforestaagroecologica.com')
+
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'marcos@laforestaagroecologica.com')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'true').lower() in ('1', 'true', 'yes', 'on')
 EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', 'false').lower() in ('1', 'true', 'yes', 'on')
