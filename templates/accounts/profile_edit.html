@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card panel-card shadow-sm border-0">
+      <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h1 class="h4 mb-0">Mi perfil</h1>
+          <a href="{% url 'password_change' %}" class="btn btn-outline-secondary">Cambiar contraseña</a>
+        </div>
+        <form method="post">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-6">{{ user_form.first_name.label_tag }}{{ user_form.first_name }}</div>
+            <div class="col-md-6">{{ user_form.last_name.label_tag }}{{ user_form.last_name }}</div>
+            <div class="col-md-6">{{ user_form.email.label_tag }}{{ user_form.email }}</div>
+            <div class="col-md-6">{{ profile_form.telefono.label_tag }}{{ profile_form.telefono }}</div>
+            <div class="col-12">{{ profile_form.direccion.label_tag }}{{ profile_form.direccion }}</div>
+          </div>
+          <button class="btn btn-success mt-3">Guardar cambios</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

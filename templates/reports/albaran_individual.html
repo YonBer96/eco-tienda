@@ -1,0 +1,100 @@
+{% load core_extras %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <style>
+    @page { size: A4; margin: 20mm 14mm; }
+    body { font-family: DejaVu Sans, Arial, sans-serif; color: #24342b; font-size: 12px; }
+    .doc { border: 1px solid #d7e3dc; border-radius: 20px; padding: 22px; background: #fff; }
+    .header { width: 100%; border-bottom: 2px solid #ebf1ed; padding-bottom: 16px; margin-bottom: 18px; }
+    .left, .right { display: inline-block; vertical-align: top; }
+    .left { width: 64%; }
+    .right { width: 34%; text-align: right; }
+    .eyebrow { display: inline-block; padding: 6px 12px; border-radius: 999px; background: #eef7f1; color: #2e6a49; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: .08em; }
+    h1 { margin: 12px 0 6px; font-size: 28px; }
+    .subtitle { color: #6b7d73; }
+    .brand { background: linear-gradient(135deg, #f6fbf7, #eef5f0); border: 1px solid #dbe7df; border-radius: 16px; padding: 14px; }
+    .brand strong { font-size: 18px; display: block; margin-bottom: 6px; }
+    .grid { width: 100%; margin: 0 -6px 16px; }
+    .card { display: inline-block; width: 23.7%; margin: 0 0.6%; vertical-align: top; border: 1px solid #e2ebe5; border-radius: 16px; padding: 12px; background: #fbfdfc; }
+    .card span { display: block; color: #75857d; text-transform: uppercase; font-size: 9px; letter-spacing: .08em; margin-bottom: 6px; }
+    .card strong { font-size: 14px; }
+    table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 8px; }
+    th { background: #f1f6f2; color: #496255; padding: 10px 9px; font-size: 9px; text-transform: uppercase; letter-spacing: .08em; border-top: 1px solid #dce7df; border-bottom: 1px solid #dce7df; }
+    th:first-child { border-left: 1px solid #dce7df; border-top-left-radius: 12px; }
+    th:last-child { border-right: 1px solid #dce7df; border-top-right-radius: 12px; }
+    td { padding: 10px 9px; border-bottom: 1px solid #ebf1ed; border-left: 1px solid #f0f4f1; }
+    td:last-child { border-right: 1px solid #f0f4f1; }
+    tbody tr:nth-child(even) td { background: #fbfdfc; }
+    .right-t { text-align: right; }
+    .summary { width: 310px; margin-left: auto; margin-top: 18px; border: 1px solid #dbe4dd; border-radius: 18px; padding: 14px 16px; background: linear-gradient(180deg, #fbfdfc, #f4f8f5); }
+    .sumline { width: 100%; margin-bottom: 8px; }
+    .sumline span { float: left; color: #476051; }
+    .sumline strong { float: right; }
+    .clear { clear: both; }
+    .total { margin-top: 12px; padding-top: 12px; border-top: 1px solid #dbe4dd; font-size: 15px; }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <div class="header">
+      <div class="left">
+        <div class="eyebrow">Documento comercial</div>
+        <h1>Albarán individual</h1>
+        <div class="subtitle">Pedido #{{ pedido.id }} · {{ generated_at|date:'d/m/Y H:i' }}</div>
+      </div>
+      <div class="right">
+        <div class="brand">
+          <strong>La Foresta Agroecológica</strong>
+          Gestión de pedidos y reparto semanal
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card"><span>Cliente</span><strong>{{ pedido.cliente.nombre }}</strong></div>
+      <div class="card"><span>Tienda</span><strong>{{ pedido.tienda.nombre }}</strong></div>
+      <div class="card"><span>Estado</span><strong>{{ pedido.get_estado_display }}</strong></div>
+      <div class="card"><span>Generado</span><strong>{{ generated_at|date:'d/m/Y H:i' }}</strong></div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Proveedor</th>
+          <th class="right-t">Cantidad</th>
+          <th>Unidad</th>
+          <th class="right-t">Precio</th>
+          <th class="right-t">Base</th>
+          <th class="right-t">IVA</th>
+          <th class="right-t">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for linea in pedido.lineas.all %}
+        <tr>
+          <td>{{ linea.nombre_producto_snapshot }}</td>
+          <td>{{ linea.proveedor_snapshot.nombre }}</td>
+          <td class="right-t">{{ linea.cantidad|qty2 }}</td>
+          <td>{{ linea.unidad_medida_snapshot }}</td>
+          <td class="right-t">{{ linea.precio_unitario_snapshot|money }} €</td>
+          <td class="right-t">{{ linea.subtotal|money }} €</td>
+          <td class="right-t">{{ linea.iva_snapshot|money }}%</td>
+          <td class="right-t">{{ linea.total_con_iva|money }} €</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8">Sin líneas de pedido.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="summary">
+      <div class="sumline"><span>Base imponible</span><strong>{{ pedido.subtotal|money }} €</strong><div class="clear"></div></div>
+      <div class="sumline"><span>IVA</span><strong>{{ pedido.total_iva|money }} €</strong><div class="clear"></div></div>
+      <div class="sumline total"><span>Total albarán</span><strong>{{ pedido.total|money }} €</strong><div class="clear"></div></div>
+    </div>
+  </div>
+</body>
+</html>
