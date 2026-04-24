@@ -1,218 +1,25 @@
-/* =========================
-   BASE RESPONSIVE MEJORADA
-========================= */
-
-html {
-    font-size: clamp(14px, 1vw, 16px);
+/* RESPONSIVE FINAL PRO */
+html{font-size:clamp(14px,1vw,16px)}
+body{overflow-x:hidden}
+.container,.container-fluid{max-width:100%;padding:clamp(10px,2vw,24px)}
+.btn{min-height:42px}
+@media(max-width:768px){.btn{width:100%}}
+.form-control,.form-select{font-size:1rem}
+.card{padding:clamp(14px,2vw,24px)}
+.table{font-size:.95rem}
+@media(max-width:768px){
+.table thead{display:none}
+.table tr{display:block;margin-bottom:1rem;border-radius:16px;background:#fff;padding:.8rem}
+.table td{display:flex;justify-content:space-between;padding:.6rem 0;border:none}
+.table td::before{content:attr(data-label);font-weight:700;font-size:.75rem}
 }
-
-body.app-body {
-    overflow-x: hidden;
+.page-hero{display:flex;flex-wrap:wrap;gap:1rem}
+.category-tabs{display:flex;flex-wrap:wrap;gap:.5rem}
+.category-tabs a{flex:1;text-align:center}
+@media(max-width:768px){
+.navbar-collapse{background:#fff;border-radius:16px;padding:1rem}
+.nav-link{text-align:center}
 }
-
-/* CONTENEDORES */
-
-.container,
-.container-fluid {
-    max-width: 100%;
-    padding-left: clamp(10px, 2vw, 24px);
-    padding-right: clamp(10px, 2vw, 24px);
-}
-
-/* NAVBAR */
-
-.app-navbar {
-    padding: 0.5rem 0;
-}
-
-.brand-mark {
-    font-size: clamp(0.9rem, 2vw, 1.1rem);
-}
-
-/* BOTONES */
-
-.btn {
-    width: auto;
-    min-height: 42px;
-}
-
-@media (max-width: 768px) {
-    .btn {
-        width: 100%;
-    }
-}
-
-/* FORMULARIOS */
-
-.form-control,
-.form-select,
-textarea {
-    font-size: 1rem;
-}
-
-/* GRID FLEXIBLE */
-
-.row {
-    margin-left: 0;
-    margin-right: 0;
-}
-
-/* TARJETAS */
-
-.card {
-    padding: clamp(14px, 2vw, 24px);
-}
-
-/* TABLAS → DESKTOP NORMAL */
-
-.table {
-    font-size: 0.95rem;
-}
-
-/* =========================
-   TABLA RESPONSIVE REAL
-========================= */
-
-@media (max-width: 768px) {
-
-    .table-responsive {
-        overflow: visible !important;
-    }
-
-    .table thead {
-        display: none;
-    }
-
-    .table tr {
-        display: block;
-        margin-bottom: 1rem;
-        border-radius: 18px;
-        background: white;
-        padding: 0.8rem;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.06);
-    }
-
-    .table td {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.6rem 0;
-        border: none;
-        font-size: 0.95rem;
-    }
-
-        .table td::before {
-            content: attr(data-label);
-            font-weight: 700;
-            color: #6f8f83;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-        }
-}
-
-/* =========================
-   HERO / CABECERA
-========================= */
-
-.page-hero {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
-    .page-hero > * {
-        flex: 1 1 auto;
-    }
-
-/* =========================
-   FILTROS
-========================= */
-
-.category-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-    .category-tabs a {
-        flex: 1 1 auto;
-        text-align: center;
-    }
-
-/* =========================
-   MOBILE NAV FIX
-========================= */
-
-@media (max-width: 768px) {
-
-    .navbar-collapse {
-        background: white;
-        border-radius: 16px;
-        padding: 1rem;
-        margin-top: 0.5rem;
-    }
-
-    .nav-link {
-        padding: 0.6rem;
-        text-align: center;
-    }
-}
-
-/* =========================
-   INPUTS NUMÉRICOS
-========================= */
-
-input[type="number"] {
-    width: 100%;
-    max-width: 120px;
-}
-
-/* =========================
-   RESUMEN PEDIDO
-========================= */
-
-#summary-box {
-    margin-top: 1rem;
-}
-
-/* =========================
-   LOGIN RESPONSIVE
-========================= */
-
-.auth-card {
-    width: min(420px, 100%);
-    margin: auto;
-}
-
-/* =========================
-   PDF / REPORT
-========================= */
-
-.report-document {
-    width: 100%;
-    max-width: 900px;
-    margin: auto;
-}
-
-/* =========================
-   PEQUEÑOS AJUSTES FINOS
-========================= */
-
-@media (max-width: 480px) {
-
-    h1 {
-        font-size: 1.6rem;
-    }
-
-    h2 {
-        font-size: 1.3rem;
-    }
-
-    .card {
-        padding: 12px;
-    }
-
-    .table td {
-        font-size: 0.85rem;
-    }
-}
+input[type=number]{max-width:120px;width:100%}
+.auth-card{width:min(420px,100%);margin:auto}
+.report-document{max-width:900px;margin:auto}
