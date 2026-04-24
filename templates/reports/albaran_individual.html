@@ -1,0 +1,68 @@
+{% load core_extras %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+</head>
+<body class="pdf-report">
+  <div class="doc">
+    <div class="header">
+      <div class="left">
+        <div class="eyebrow">Documento comercial</div>
+        <h1>Albarán individual</h1>
+        <div class="subtitle">Pedido #{{ pedido.id }} · {{ generated_at|date:'d/m/Y H:i' }}</div>
+      </div>
+      <div class="right">
+        <div class="brand">
+          <strong>La Foresta Agroecológica</strong>
+          Gestión de pedidos y reparto semanal
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card"><span>Cliente</span><strong>{{ pedido.cliente.nombre }}</strong></div>
+      <div class="card"><span>Tienda</span><strong>{{ pedido.tienda.nombre }}</strong></div>
+      <div class="card"><span>Estado</span><strong>{{ pedido.get_estado_display }}</strong></div>
+      <div class="card"><span>Generado</span><strong>{{ generated_at|date:'d/m/Y H:i' }}</strong></div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Proveedor</th>
+          <th class="right-t">Cantidad</th>
+          <th>Unidad</th>
+          <th class="right-t">Precio</th>
+          <th class="right-t">Base</th>
+          <th class="right-t">IVA</th>
+          <th class="right-t">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for linea in pedido.lineas.all %}
+        <tr>
+          <td>{{ linea.nombre_producto_snapshot }}</td>
+          <td>{{ linea.proveedor_snapshot.nombre }}</td>
+          <td class="right-t">{{ linea.cantidad|qty2 }}</td>
+          <td>{{ linea.unidad_medida_snapshot }}</td>
+          <td class="right-t">{{ linea.precio_unitario_snapshot|money }} €</td>
+          <td class="right-t">{{ linea.subtotal|money }} €</td>
+          <td class="right-t">{{ linea.iva_total|money }} €</td>
+          <td class="right-t">{{ linea.total_con_iva|money }} €</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8">Sin líneas de pedido.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="summary">
+      <div class="sumline"><span>Base imponible</span><strong>{{ pedido.subtotal|money }} €</strong><div class="clear"></div></div>
+      <div class="sumline"><span>IVA</span><strong>{{ pedido.total_iva|money }} €</strong><div class="clear"></div></div>
+      <div class="sumline total"><span>Total albarán</span><strong>{{ pedido.total|money }} €</strong><div class="clear"></div></div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-hero">
+  <div>
+    <h1 class="mb-2">Panel de cliente</h1>
+    <p class="text-muted mb-0">Consulta tu historial y gestiona tus pedidos de fruta y verdura de forma rápida.</p>
+  </div>
+  <a href="{% url 'pedido_create' %}" class="btn btn-success">Nuevo pedido</a>
+</div>
+
+<div class="card panel-card shadow-sm border-0">
+  <div class="card-body">
+    <h2 class="h5 mb-3">Últimos pedidos</h2>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Tienda</th>
+            <th>Ciclo</th>
+            <th>Estado</th>
+            <th>Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pedido in pedidos %}
+          <tr>
+            <td data-label="ID">#{{ pedido.id }}</td>
+            <td data-label="Tienda">{{ pedido.tienda.nombre }}</td>
+            <td data-label="Ciclo">{{ pedido.ciclo.nombre }}</td>
+            <td data-label="Estado">{{ pedido.get_estado_display }}</td>
+            <td data-label="Total">{{ pedido.total }} €</td>
+            <td data-label="Acciones"><a href="{% url 'pedido_detail' pedido.id %}" class="btn btn-sm btn-outline-success">Ver</a></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6" class="text-center text-muted">Todavía no hay pedidos.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+{% load core_extras %}
+{% block content %}
+<div class="page-hero">
+  <div>
+    <h1 class="mb-2">Pedido #{{ pedido.id }}</h1>
+    <p class="text-muted mb-0">{{ pedido.cliente.nombre }} · {{ pedido.tienda.nombre }} · {{ pedido.ciclo.nombre }}</p>
+  </div>
+  <span class="badge bg-secondary fs-6">{{ pedido.get_estado_display }}</span>
+</div>
+<form method="post">
+  {% csrf_token %}
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="card panel-card shadow-sm border-0">
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label">Observaciones</label>
+            <textarea class="form-control" rows="2" name="observaciones">{{ pedido.observaciones }}</textarea>
+          </div>
+
+          <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+            <span class="small text-muted me-2">Filtrar productos:</span>
+            <button type="button" class="btn btn-sm btn-success category-filter active" data-filter="todo">Todos</button>
+            {% for categoria in categorias %}
+            <button type="button" class="btn btn-sm btn-outline-success category-filter" data-filter="{{ categoria.nombre|slugify }}">{{ categoria.nombre }}</button>
+            {% endfor %}
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-striped align-middle" id="order-table">
+              <thead>
+                <tr>
+                  <th>Categoría</th>
+                  <th>Producto</th>
+                  <th>Proveedor</th>
+                  <th>Origen</th>
+                  <th>Precio</th>
+                  <th>Unidad</th>
+                  <th class="qty-column">Cantidad</th>
+                  <th>Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for categoria in categorias %}
+                  {% with categoria_slug=categoria.nombre|slugify %}
+                    {% for producto in productos %}
+                      {% if producto.categoria_id == categoria.id %}
+                        {% ifchanged producto.categoria_id %}
+                        <tr class="table-light category-header" data-category-group="{{ categoria_slug }}">
+                          <td colspan="8" class="fw-semibold text-success">{{ categoria.nombre }}</td>
+                        </tr>
+                        {% endifchanged %}
+                        {% with linea=lineas_map|get_item:producto.id %}
+                        <tr class="product-row" data-category="{{ categoria_slug }}" data-iva="{{ producto.iva|money }}">
+                          <td data-label="Categoría">{{ categoria.nombre }}</td>
+                          <td data-label="Producto">{{ producto.nombre }}</td>
+                          <td data-label="Proveedor">{{ producto.proveedor.nombre }}</td>
+                          <td data-label="Origen">{{ producto.origen|default:'-' }}</td>
+                          <td class="price-cell" data-label="Precio">{{ producto.precio|money }}</td>
+                          <td data-label="Unidad">{{ producto.get_unidad_medida_display }}</td>
+                          <td data-label="Cantidad">
+                            <input type="number" step="0.01" min="0" inputmode="decimal" name="producto_{{ producto.id }}" value="{% if linea %}{{ linea.cantidad|money }}{% endif %}" class="form-control qty-input">
+                            <div class="small text-muted mt-1">Mín. {{ producto.pedido_minimo|money }} · Paso {{ producto.incremento_pedido|money }}</div>
+                          </td>
+                          <td class="subtotal-cell" data-label="Subtotal">-</td>
+                        </tr>
+                        {% endwith %}
+                      {% endif %}
+                    {% endfor %}
+                  {% endwith %}
+                {% endfor %}
+                {% for producto in productos %}
+                  {% if not producto.categoria_id %}
+                    {% ifchanged producto.categoria_id %}
+                    <tr class="table-light category-header" data-category-group="sin-categoria">
+                      <td colspan="8" class="fw-semibold text-success">Sin categoría</td>
+                    </tr>
+                    {% endifchanged %}
+                    {% with linea=lineas_map|get_item:producto.id %}
+                    <tr class="product-row" data-category="sin-categoria" data-iva="{{ producto.iva|money }}">
+                      <td data-label="Categoría">Sin categoría</td>
+                      <td data-label="Producto">{{ producto.nombre }}</td>
+                      <td data-label="Proveedor">{{ producto.proveedor.nombre }}</td>
+                      <td data-label="Origen">{{ producto.origen|default:'-' }}</td>
+                      <td class="price-cell" data-label="Precio">{{ producto.precio|money }}</td>
+                      <td data-label="Unidad">{{ producto.get_unidad_medida_display }}</td>
+                      <td data-label="Cantidad">
+                        <input type="number" step="0.01" min="0" inputmode="decimal" name="producto_{{ producto.id }}" value="{% if linea %}{{ linea.cantidad|money }}{% endif %}" class="form-control qty-input">
+                        <div class="small text-muted mt-1">Mín. {{ producto.pedido_minimo|money }} · Paso {{ producto.incremento_pedido|money }}</div>
+                      </td>
+                      <td class="subtotal-cell" data-label="Subtotal">-</td>
+                    </tr>
+                    {% endwith %}
+                  {% endif %}
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card panel-card shadow-sm border-0 sticky-summary">
+        <div class="card-body">
+          <h2 class="h5">Resumen de compra</h2>
+          <div id="summary-box" class="small"></div>
+          <hr>
+          <div class="d-flex justify-content-between fw-bold">
+            <span>Base imponible</span>
+            <span><span id="grand-subtotal">0.00</span> €</span>
+          </div>
+          <div class="d-flex justify-content-between mt-2">
+            <span>IVA estimado</span>
+            <span><span id="grand-tax">0.00</span> €</span>
+          </div>
+          <div class="d-flex justify-content-between fw-bold mt-2">
+            <span>Total</span>
+            <span><span id="grand-total">0.00</span> €</span>
+          </div>
+          <div class="d-grid gap-2 mt-3">
+            <button type="submit" class="btn btn-outline-success">Guardar</button>
+            <button type="submit" name="confirmar" class="btn btn-success">Confirmar pedido</button>
+            <a href="{% url 'pedido_delete' pedido.id %}" class="btn btn-outline-danger">Anular pedido</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const rows = document.querySelectorAll('#order-table tbody tr.product-row');
+  const headers = document.querySelectorAll('#order-table tbody tr.category-header');
+  const summaryBox = document.getElementById('summary-box');
+  const grandSubtotal = document.getElementById('grand-subtotal');
+  const grandTax = document.getElementById('grand-tax');
+  const grandTotal = document.getElementById('grand-total');
+  const filterButtons = document.querySelectorAll('.category-filter');
+
+  function sanitizeTwoDecimals(input) {
+    let value = (input.value || '').replace(',', '.');
+    if (!value) return;
+    if (!/^\d*(\.\d*)?$/.test(value)) {
+      value = value.replace(/[^\d.]/g, '');
+    }
+    const [integer, decimals = ''] = value.split('.');
+    input.value = decimals ? `${integer}.${decimals.slice(0, 2)}` : integer;
+  }
+
+  function applyCategoryFilter(filter) {
+    rows.forEach(row => {
+      const rowCategory = row.dataset.category || 'sin-categoria';
+      row.style.display = filter === 'todo' || rowCategory === filter ? '' : 'none';
+    });
+
+    headers.forEach(header => {
+      const group = header.dataset.categoryGroup || 'sin-categoria';
+      const hasVisibleRows = Array.from(rows).some(row => row.dataset.category === group && row.style.display !== 'none');
+      header.style.display = filter === 'todo' ? (hasVisibleRows ? '' : 'none') : (hasVisibleRows ? '' : 'none');
+    });
+
+    filterButtons.forEach(btn => {
+      const active = btn.dataset.filter === filter;
+      btn.classList.toggle('btn-success', active);
+      btn.classList.toggle('btn-outline-success', !active);
+      btn.classList.toggle('active', active);
+    });
+  }
+
+  function updateSummary() {
+    let subtotal = 0;
+    let tax = 0;
+    let html = '<ul class="list-group list-group-flush">';
+    rows.forEach(row => {
+      const nombre = row.children[1].innerText.trim();
+      const precio = parseFloat(row.querySelector('.price-cell').innerText.replace(',', '.')) || 0;
+      const unidad = row.children[5].innerText.trim();
+      const input = row.querySelector('.qty-input');
+      sanitizeTwoDecimals(input);
+      const qty = parseFloat((input.value || '0').replace(',', '.')) || 0;
+      const ivaPercent = parseFloat(row.dataset.iva || '0') || 0;
+      const lineSubtotal = qty * precio;
+      const ivaRate = lineSubtotal * (ivaPercent / 100);
+      const lineTotal = lineSubtotal + ivaRate;
+      row.querySelector('.subtotal-cell').innerText = qty > 0 ? lineSubtotal.toFixed(2) + ' €' : '-';
+      if (qty > 0) {
+        subtotal += lineSubtotal;
+        tax += ivaRate;
+        html += `<li class="list-group-item d-flex justify-content-between px-0"><span>${nombre} (${qty.toFixed(2)} ${unidad})</span><strong>${lineTotal.toFixed(2)} €</strong></li>`;
+      }
+    });
+    html += '</ul>';
+    summaryBox.innerHTML = html;
+    grandSubtotal.innerText = subtotal.toFixed(2);
+    grandTax.innerText = tax.toFixed(2);
+    grandTotal.innerText = (subtotal + tax).toFixed(2);
+  }
+
+  document.querySelectorAll('.qty-input').forEach(input => {
+    input.addEventListener('input', function () { sanitizeTwoDecimals(this); updateSummary(); });
+    input.addEventListener('blur', function () {
+      const val = parseFloat((this.value || '0').replace(',', '.'));
+      if (!isNaN(val) && this.value !== '') this.value = val.toFixed(2);
+      updateSummary();
+    });
+  });
+  filterButtons.forEach(button => button.addEventListener('click', function () { applyCategoryFilter(this.dataset.filter); }));
+
+  applyCategoryFilter('todo');
+  updateSummary();
+});
+</script>
+{% endblock %}

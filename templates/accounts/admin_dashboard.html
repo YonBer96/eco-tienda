@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-hero">
+    <div>
+        <h1 class="mb-2">Panel de administración</h1>
+        <p class="text-muted mb-0">Controla usuarios, catálogo, proveedores y pedidos desde una interfaz limpia y actual.</p>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card panel-card p-3 shadow-sm h-100">
+            <h5>Usuarios</h5>
+            <p class="mb-0 text-muted">Gestión desde admin.</p>
+            <a href="/admin/auth/user/" class="btn btn-sm btn-success mt-3">Ver usuarios</a>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card panel-card p-3 shadow-sm h-100">
+            <h5>Productos</h5>
+            <p class="mb-0 text-muted">Gestión del catálogo.</p>
+            <a href="/admin/catalog/producto/" class="btn btn-sm btn-success mt-3">Ver productos</a>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card panel-card p-3 shadow-sm h-100">
+            <h5>Proveedores</h5>
+            <p class="mb-0 text-muted">Alta, baja y edición.</p>
+            <a href="/admin/catalog/proveedor/" class="btn btn-sm btn-success mt-3">Ver proveedores</a>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card panel-card p-3 shadow-sm h-100">
+            <h5>Pedidos</h5>
+            <p class="mb-0 text-muted">Historial completo.</p>
+            <a href="{% url 'pedido_list' %}" class="btn btn-sm btn-success mt-3">Ver pedidos</a>
+        </div>
+    </div>
+</div>
+
+<div class="card panel-card p-4 shadow-sm">
+    <h4 class="mb-3">Accesos rápidos</h4>
+    <div class="d-flex gap-2 flex-wrap">
+        <a href="{% url 'pedido_create' %}" class="btn btn-outline-success">Nuevo pedido</a>
+        <a href="/admin/" class="btn btn-outline-dark">Administración Django</a>
+    </div>
+</div>
+{% endblock %}

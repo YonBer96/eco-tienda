@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-hero">
+  <div>
+    <h1 class="mb-2">{{ title }}</h1>
+    <p class="text-muted mb-0">{{ subtitle }}</p>
+  </div>
+  <div class="d-flex gap-2 flex-wrap">
+    <a class="btn btn-outline-secondary" href="{% if back_id %}{% url back_url back_id %}{% else %}{% url back_url %}{% endif %}">Volver</a>
+  </div>
+</div>
+{% if warning %}<div class="alert alert-warning">{{ warning }}</div>{% endif %}
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card panel-card shadow-sm border-0">
+      <div class="card-header"><strong>Borrador editable</strong></div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">{{ form.to.label }}</label>
+              {{ form.to }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">{{ form.cc.label }}</label>
+              {{ form.cc }}
+              <div class="form-text">{{ form.cc.help_text }}</div>
+            </div>
+            <div class="col-12">
+              <label class="form-label">{{ form.subject.label }}</label>
+              {{ form.subject }}
+            </div>
+            <div class="col-12">
+              <label class="form-label">{{ form.body.label }}</label>
+              {{ form.body }}
+            </div>
+          </div>
+          <div class="d-flex justify-content-end gap-2 mt-4 flex-wrap">
+            <a class="btn btn-outline-secondary" href="{% if back_id %}{% url back_url back_id %}{% else %}{% url back_url %}{% endif %}">Cancelar</a>
+            <button class="btn btn-success" type="submit">{{ send_label }}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card panel-card shadow-sm border-0 sticky-summary">
+      <div class="card-header"><strong>{{ summary_title }}</strong></div>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+          {% for item in summary_lines %}
+          <li class="list-group-item px-0">{{ item }}</li>
+          {% empty %}
+          <li class="list-group-item px-0 text-muted">No hay líneas para mostrar.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

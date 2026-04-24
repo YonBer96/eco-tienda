@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load core_extras %}
+{% block content %}
+<div class="page-hero">
+  <div>
+    <h1 class="mb-2">Detalle del pedido #{{ pedido.id }}</h1>
+    <p class="text-muted mb-0">{{ pedido.cliente.nombre }} · {{ pedido.tienda.nombre }}</p>
+  </div>
+  <div class="d-flex gap-2 flex-wrap">
+    <a class="btn btn-outline-secondary" href="{% url 'albaran_individual_pdf' pedido.id %}">Albarán PDF</a>
+    <a class="btn btn-outline-secondary" href="{% url 'factura_pdf' pedido.id %}">Factura PDF</a>
+    <a class="btn btn-outline-secondary" href="{% url 'enviar_albaran_email' pedido.id %}">Preparar email</a>
+    {% if pedido|can_edit:user %}<a class="btn btn-success" href="{% url 'pedido_edit' pedido.id %}">Editar</a><a class="btn btn-outline-danger" href="{% url 'pedido_delete' pedido.id %}">Cancelar pedido</a>{% endif %}
+  </div>
+</div>
+<div class="card panel-card shadow-sm border-0">
+  <div class="card-body">
+    <div class="row mb-3 g-3">
+      <div class="col-md-3"><strong>Cliente:</strong><br>{{ pedido.cliente.nombre }}</div>
+      <div class="col-md-3"><strong>Tienda:</strong><br>{{ pedido.tienda.nombre }}</div>
+      <div class="col-md-3"><strong>Estado:</strong><br>{{ pedido.get_estado_display }}</div>
+      <div class="col-md-3"><strong>Fecha:</strong><br>{{ pedido.creado_en|date:'d/m/Y H:i' }}</div>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-striped align-middle">
+        <thead><tr><th>Producto</th><th>Proveedor</th><th>Cantidad</th><th>Unidad</th><th>Precio</th><th>IVA</th><th>Base</th><th>Total</th></tr></thead>
+        <tbody>
+          {% for linea in pedido.lineas.all %}
+          <tr>
+            <td data-label="Producto">{{ linea.nombre_producto_snapshot }}</td>
+            <td data-label="Proveedor">{{ linea.proveedor_snapshot.nombre }}</td>
+            <td data-label="Cantidad">{{ linea.cantidad|qty2 }}</td>
+            <td data-label="Unidad">{{ linea.unidad_medida_snapshot }}</td>
+            <td data-label="Precio">{{ linea.precio_unitario_snapshot|money }} €</td>
+            <td data-label="IVA">{{ linea.iva_snapshot|money }}%</td>
+            <td data-label="Subtotal">{{ linea.subtotal|money }} €</td>
+            <td data-label="Total">{{ linea.total_con_iva|money }} €</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="8" class="text-center text-muted">No hay líneas en este pedido.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="text-end mt-3">
+      <div><strong>Base imponible:</strong> {{ pedido.subtotal|money }} €</div>
+      <div><strong>IVA:</strong> {{ pedido.total_iva|money }} €</div>
+      <div class="fw-bold fs-5 mt-1">Total: {{ pedido.total|money }} €</div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% load core_extras %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+</head>
+<body class="pdf-report">
+  <div class="doc">
+    <div class="head">
+      <div class="col col-l">
+        <div class="tag">Documento fiscal</div>
+        <h1>Factura</h1>
+        <div class="subtitle">N.º FAC-{{ pedido.id|stringformat:'06d' }}</div>
+      </div>
+      <div class="col col-r">
+        <div class="brand">
+          <strong>La Foresta Agroecológica</strong>
+          Facturación y gestión de pedidos
+        </div>
+      </div>
+    </div>
+
+    <div class="bill">
+      <div class="box">
+        <span>Facturar a</span>
+        <strong>{{ pedido.cliente.nombre }}</strong>
+        <div>CIF/NIF: {{ pedido.cliente.nif|default:'-' }}</div>
+        <div>{{ pedido.tienda.direccion_facturacion|default:pedido.cliente.direccion_facturacion|default:pedido.tienda.direccion|default:'-' }}</div>
+      </div>
+      <div class="box">
+        <span>Datos del documento</span>
+        <strong>Fecha de emisión</strong>
+        <div>{{ generated_at|date:'d/m/Y H:i' }}</div>
+        <div>Tienda: {{ pedido.tienda.nombre }}</div>
+        <div>Cliente: {{ pedido.cliente.nombre }}</div>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th class="right-t">Cantidad</th>
+          <th>Unidad</th>
+          <th class="right-t">Precio</th>
+          <th class="right-t">Base</th>
+          <th class="right-t">IVA</th>
+          <th class="right-t">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for linea in pedido.lineas.all %}
+        <tr>
+          <td>{{ linea.nombre_producto_snapshot }}</td>
+          <td class="right-t">{{ linea.cantidad|qty2 }}</td>
+          <td>{{ linea.unidad_medida_snapshot }}</td>
+          <td class="right-t">{{ linea.precio_unitario_snapshot|money }} €</td>
+          <td class="right-t">{{ linea.subtotal|money }} €</td>
+          <td class="right-t">{{ linea.iva_total|money }} €</td>
+          <td class="right-t">{{ linea.total_con_iva|money }} €</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7">Sin líneas de pedido.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="totals">
+      <div class="line"><span>Base imponible</span><strong>{{ pedido.subtotal|money }} €</strong><div class="clear"></div></div>
+      <div class="line"><span>IVA</span><strong>{{ pedido.total_iva|money }} €</strong><div class="clear"></div></div>
+      <div class="line grand"><span>Total factura</span><strong>{{ pedido.total|money }} €</strong><div class="clear"></div></div>
+    </div>
+  </div>
+</body>
+</html>
