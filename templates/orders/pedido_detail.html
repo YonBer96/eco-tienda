@@ -7,10 +7,15 @@
     <p class="text-muted mb-0">{{ pedido.cliente.nombre }} · {{ pedido.tienda.nombre }}</p>
   </div>
   <div class="d-flex gap-2 flex-wrap">
-    <a class="btn btn-outline-secondary" href="{% url 'albaran_individual_pdf' pedido.id %}">Albarán PDF</a>
-    <a class="btn btn-outline-secondary" href="{% url 'factura_pdf' pedido.id %}">Factura PDF</a>
-    <a class="btn btn-outline-secondary" href="{% url 'enviar_albaran_email' pedido.id %}">Preparar email</a>
-    {% if pedido|can_edit:user %}<a class="btn btn-success" href="{% url 'pedido_edit' pedido.id %}">Editar</a><a class="btn btn-outline-danger" href="{% url 'pedido_delete' pedido.id %}">Cancelar pedido</a>{% endif %}
+      <a class="btn btn-outline-secondary" href="{% url 'albaran_individual_pdf' pedido.id %}">Albarán PDF</a>
+      <a class="btn btn-outline-secondary" href="{% url 'factura_pdf' pedido.id %}">Factura PDF</a>
+      {% if request.user.is_staff %}
+      <a href="{% url 'supplier_email_draft' supplier.id %}?ciclo_id={{ ciclo.id }}"
+         class="btn btn-outline-secondary btn-sm">
+          Preparar email
+      </a>
+      {% endif %}
+      {% if pedido|can_edit:user %}<a class="btn btn-success" href="{% url 'pedido_edit' pedido.id %}">Editar</a><a class="btn btn-outline-danger" href="{% url 'pedido_delete' pedido.id %}">Cancelar pedido</a>{% endif %}
   </div>
 </div>
 <div class="card panel-card shadow-sm border-0">

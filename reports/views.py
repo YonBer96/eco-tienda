@@ -14,6 +14,10 @@ from catalog.models import Producto, Proveedor
 from orders.models import LineaPedido, OrderCycle, Pedido
 from .forms import EmailDraftForm
 from .utils import render_pdf
+from django.core.mail import EmailMessage
+from io import BytesIO
+from django.template.loader import render_to_string
+from xhtml2pdf import pisa
 
 
 def quantize_2(value):
@@ -243,22 +247,28 @@ def factura_pdf(request, pedido_id):
 
     return response
 
-
 @login_required
 def enviar_albaran_email(request, pedido_id):
-    pedido = get_object_or_404(Pedido.objects.select_related('cliente', 'tienda', 'usuario').prefetch_related('lineas'), pk=pedido_id)
+    pedido = get_object_or_404(
+        Pedido.objects.select_related('cliente', 'tienda', 'usuario').prefetch_related('lineas'),
+        pk=pedido_id
+    )
 
     if not request.user.is_superuser and pedido.usuario_id != request.user.id:
         raise Http404()
 
     initial = _pedido_email_initial(pedido)
+
     if not initial['to']:
         messages.error(request, 'No hay un correo configurado para este pedido o usuario.')
         return redirect('pedido_detail', pk=pedido.id)
 
     if request.method == 'POST':
         form = EmailDraftForm(request.POST)
+
         if form.is_valid():
+            attach_pdf = request.POST.get('attach_pdf') == 'on'
+
             email = EmailMessage(
                 subject=form.cleaned_data['subject'],
                 body=form.cleaned_data['body'],
@@ -266,13 +276,35 @@ def enviar_albaran_email(request, pedido_id):
                 to=[form.cleaned_data['to']],
                 cc=[x.strip() for x in form.cleaned_data['cc'].split(',') if x.strip()],
             )
+
+            if attach_pdf:
+                try:
+                    pdf_response = albaran_individual_pdf(request, pedido.id)
+                    email.attach(
+                        f'albaran_pedido_{pedido.id}.pdf',
+                        pdf_response.content,
+                        'application/pdf'
+                    )
+                except Exception as exc:
+                    messages.error(request, f'No se pudo generar el PDF del albarán: {exc}')
+                    return redirect('pedido_detail', pk=pedido.id)
+
             try:
                 email.send(fail_silently=False)
             except Exception as exc:
                 messages.error(request, f'No se pudo enviar el correo: {exc}')
             else:
                 extra = '' if _is_real_email_backend() else ' El proyecto está en modo consola; para envío real configura SMTP.'
-                messages.success(request, f'Borrador enviado correctamente a {form.cleaned_data["to"]}.{extra}')
+                if attach_pdf:
+                    messages.success(
+                        request,
+                        f'Correo enviado correctamente a {form.cleaned_data["to"]} con el PDF adjunto.{extra}'
+                    )
+                else:
+                    messages.success(
+                        request,
+                        f'Correo enviado correctamente a {form.cleaned_data["to"]} sin PDF adjunto.{extra}'
+                    )
                 return redirect('pedido_detail', pk=pedido.id)
     else:
         form = EmailDraftForm(initial=initial)
@@ -297,18 +329,23 @@ def enviar_albaran_email(request, pedido_id):
 def supplier_email_draft(request, proveedor_id):
     ciclo = get_cycle_or_latest(request.GET.get('ciclo_id'))
     proveedor = get_object_or_404(Proveedor, pk=proveedor_id)
+
     if not ciclo:
         messages.error(request, 'No hay ciclos disponibles.')
         return redirect('supplier_summary')
 
     initial = _supplier_email_initial(ciclo, proveedor)
+
     if not initial['to']:
         messages.error(request, 'El proveedor no tiene un correo configurado.')
         return redirect('supplier_summary')
 
     if request.method == 'POST':
         form = EmailDraftForm(request.POST)
+
         if form.is_valid():
+            attach_pdf = request.POST.get('attach_pdf') == 'on'
+
             email = EmailMessage(
                 subject=form.cleaned_data['subject'],
                 body=form.cleaned_data['body'],
@@ -316,13 +353,43 @@ def supplier_email_draft(request, proveedor_id):
                 to=[form.cleaned_data['to']],
                 cc=[x.strip() for x in form.cleaned_data['cc'].split(',') if x.strip()],
             )
+
+            if attach_pdf:
+                try:
+                    pdf_response = supplier_single_pdf(request, proveedor.id, ciclo.id)
+
+                    if not pdf_response.content:
+                        messages.error(request, 'El PDF del albarán se generó vacío.')
+                        return redirect('supplier_summary')
+
+                    email.attach(
+                        filename=f'albaran_proveedor_{proveedor.nombre}.pdf',
+                        content=pdf_response.content,
+                        mimetype='application/pdf',
+                    )
+
+                except Exception as exc:
+                    messages.error(request, f'No se pudo adjuntar el PDF del albarán: {exc}')
+                    return redirect('supplier_summary')
+
             try:
                 email.send(fail_silently=False)
             except Exception as exc:
                 messages.error(request, f'No se pudo enviar el correo: {exc}')
             else:
                 extra = '' if _is_real_email_backend() else ' El proyecto está en modo consola; para envío real configura SMTP.'
-                messages.success(request, f'Correo al proveedor enviado a {form.cleaned_data["to"]}.{extra}')
+
+                if attach_pdf:
+                    messages.success(
+                        request,
+                        f'Correo al proveedor enviado a {form.cleaned_data["to"]} con PDF adjunto.{extra}'
+                    )
+                else:
+                    messages.success(
+                        request,
+                        f'Correo al proveedor enviado a {form.cleaned_data["to"]} sin PDF adjunto.{extra}'
+                    )
+
                 return redirect('supplier_summary')
     else:
         form = EmailDraftForm(initial=initial)
@@ -402,3 +469,37 @@ def albaran_semanal_general_pdf(request, ciclo_id):
 @user_passes_test(lambda u: u.is_superuser)
 def albaran_por_proveedor_pdf(request, ciclo_id):
     return supplier_summary_pdf(request, ciclo_id=ciclo_id)
+
+@user_passes_test(lambda u: u.is_superuser)
+def supplier_single_pdf(request, proveedor_id, ciclo_id=None):
+    ciclo = get_cycle_or_latest(ciclo_id)
+    proveedor = get_object_or_404(Proveedor, pk=proveedor_id)
+
+    if not ciclo:
+        messages.error(request, 'No hay ciclos disponibles.')
+        return redirect('supplier_summary')
+
+    proveedor_data = build_supplier_summary(ciclo)
+
+    suppliers = [
+        s for s in proveedor_data['suppliers']
+        if s['id'] == proveedor.id
+    ]
+
+    response = render_pdf(
+        'reports/albaran_proveedores.html',
+        {
+            'ciclo': ciclo,
+            **proveedor_data,
+            'suppliers': suppliers,
+            'supplier_count': len(suppliers),
+            'generated_at': timezone.localtime(),
+        },
+        filename=f'albaran_{proveedor.nombre}_ciclo_{ciclo.id}.pdf'
+    )
+
+    if response is None:
+        messages.error(request, 'La generación de PDF no está disponible.')
+        return redirect('supplier_summary')
+
+    return response
