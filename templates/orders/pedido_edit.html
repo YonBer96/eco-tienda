@@ -20,11 +20,15 @@
           </div>
 
           <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
-            <span class="small text-muted me-2">Filtrar productos:</span>
-            <button type="button" class="btn btn-sm btn-success category-filter active" data-filter="todo">Todos</button>
-            {% for categoria in categorias %}
-            <button type="button" class="btn btn-sm btn-outline-success category-filter" data-filter="{{ categoria.nombre|slugify }}">{{ categoria.nombre }}</button>
-            {% endfor %}
+              <span class="small text-muted me-2">Filtrar productos:</span>
+              <input type="text"
+                     id="product-search"
+                     class="form-control mb-3"
+                     placeholder="Buscar producto...">
+              <button type="button" class="btn btn-sm btn-success category-filter active" data-filter="todo">Todos</button>
+              {% for categoria in categorias %}
+              <button type="button" class="btn btn-sm btn-outline-success category-filter" data-filter="{{ categoria.nombre|slugify }}">{{ categoria.nombre }}</button>
+              {% endfor %}
           </div>
 
           <div class="table-responsive">
@@ -52,18 +56,46 @@
                         </tr>
                         {% endifchanged %}
                         {% with linea=lineas_map|get_item:producto.id %}
-                        <tr class="product-row" data-category="{{ categoria_slug }}" data-iva="{{ producto.iva|money }}">
-                          <td data-label="Categoría">{{ categoria.nombre }}</td>
-                          <td data-label="Producto">{{ producto.nombre }}</td>
-                          <td data-label="Proveedor">{{ producto.proveedor.nombre }}</td>
-                          <td data-label="Origen">{{ producto.origen|default:'-' }}</td>
-                          <td class="price-cell" data-label="Precio">{{ producto.precio|money }}</td>
-                          <td data-label="Unidad">{{ producto.get_unidad_medida_display }}</td>
-                          <td data-label="Cantidad">
-                            <input type="number" step="0.01" min="0" inputmode="decimal" name="producto_{{ producto.id }}" value="{% if linea %}{{ linea.cantidad|money }}{% endif %}" class="form-control qty-input">
-                            <div class="small text-muted mt-1">Mín. {{ producto.pedido_minimo|money }} · Paso {{ producto.incremento_pedido|money }}</div>
-                          </td>
-                          <td class="subtotal-cell" data-label="Subtotal">-</td>
+                        <tr class="product-row"
+                            data-category="{{ categoria_slug }}"
+                            data-iva="{{ producto.iva|money }}"
+                            data-producto="{{ producto.nombre|lower }}">
+
+                            <td data-label="Categoría">{{ categoria.nombre }}</td>
+
+                            <td data-label="Producto">{{ producto.nombre }}</td>
+
+                            <td data-label="Proveedor">{{ producto.proveedor.nombre }}</td>
+
+                            <td data-label="Origen">{{ producto.origen|default:'-' }}</td>
+
+                            <td class="price-cell" data-label="Precio">
+                                {{ producto.precio|money }}
+                            </td>
+
+                            <td data-label="Unidad">
+                                {{ producto.get_unidad_medida_display }}
+                            </td>
+
+                            <td data-label="Cantidad">
+                                <input type="number"
+                                       step="0.01"
+                                       min="0"
+                                       inputmode="decimal"
+                                       name="producto_{{ producto.id }}"
+                                       value="{% if linea %}{{ linea.cantidad|money }}{% endif %}"
+                                       class="form-control qty-input">
+
+                                <div class="small text-muted mt-1">
+                                    Mín. {{ producto.pedido_minimo|money }}
+                                    · Paso {{ producto.incremento_pedido|money }}
+                                </div>
+                            </td>
+
+                            <td class="subtotal-cell" data-label="Subtotal">
+                                -
+                            </td>
+
                         </tr>
                         {% endwith %}
                       {% endif %}
@@ -131,86 +163,110 @@
 {% endblock %}
 {% block scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-  const rows = document.querySelectorAll('#order-table tbody tr.product-row');
-  const headers = document.querySelectorAll('#order-table tbody tr.category-header');
-  const summaryBox = document.getElementById('summary-box');
-  const grandSubtotal = document.getElementById('grand-subtotal');
-  const grandTax = document.getElementById('grand-tax');
-  const grandTotal = document.getElementById('grand-total');
-  const filterButtons = document.querySelectorAll('.category-filter');
+    document.addEventListener('DOMContentLoaded', function () {
+        const rows = document.querySelectorAll('#order-table tbody tr.product-row');
+        const headers = document.querySelectorAll('#order-table tbody tr.category-header');
+        const summaryBox = document.getElementById('summary-box');
+        const grandSubtotal = document.getElementById('grand-subtotal');
+        const grandTax = document.getElementById('grand-tax');
+        const grandTotal = document.getElementById('grand-total');
+        const filterButtons = document.querySelectorAll('.category-filter');
 
-  function sanitizeTwoDecimals(input) {
-    let value = (input.value || '').replace(',', '.');
-    if (!value) return;
-    if (!/^\d*(\.\d*)?$/.test(value)) {
-      value = value.replace(/[^\d.]/g, '');
-    }
-    const [integer, decimals = ''] = value.split('.');
-    input.value = decimals ? `${integer}.${decimals.slice(0, 2)}` : integer;
-  }
+        function sanitizeTwoDecimals(input) {
+            let value = (input.value || '').replace(',', '.');
+            if (!value) return;
+            if (!/^\d*(\.\d*)?$/.test(value)) {
+                value = value.replace(/[^\d.]/g, '');
+            }
+            const [integer, decimals = ''] = value.split('.');
+            input.value = decimals ? `${integer}.${decimals.slice(0, 2)}` : integer;
+        }
 
-  function applyCategoryFilter(filter) {
-    rows.forEach(row => {
-      const rowCategory = row.dataset.category || 'sin-categoria';
-      row.style.display = filter === 'todo' || rowCategory === filter ? '' : 'none';
+        function applyCategoryFilter(filter) {
+            rows.forEach(row => {
+                const rowCategory = row.dataset.category || 'sin-categoria';
+                row.style.display = filter === 'todo' || rowCategory === filter ? '' : 'none';
+            });
+
+            headers.forEach(header => {
+                const group = header.dataset.categoryGroup || 'sin-categoria';
+                const hasVisibleRows = Array.from(rows).some(row => row.dataset.category === group && row.style.display !== 'none');
+                header.style.display = filter === 'todo' ? (hasVisibleRows ? '' : 'none') : (hasVisibleRows ? '' : 'none');
+            });
+
+            filterButtons.forEach(btn => {
+                const active = btn.dataset.filter === filter;
+                btn.classList.toggle('btn-success', active);
+                btn.classList.toggle('btn-outline-success', !active);
+                btn.classList.toggle('active', active);
+            });
+        }
+
+        function updateSummary() {
+            let subtotal = 0;
+            let tax = 0;
+            let html = '<ul class="list-group list-group-flush">';
+            rows.forEach(row => {
+                const nombre = row.children[1].innerText.trim();
+                const precio = parseFloat(row.querySelector('.price-cell').innerText.replace(',', '.')) || 0;
+                const unidad = row.children[5].innerText.trim();
+                const input = row.querySelector('.qty-input');
+                sanitizeTwoDecimals(input);
+                const qty = parseFloat((input.value || '0').replace(',', '.')) || 0;
+                const ivaPercent = parseFloat(row.dataset.iva || '0') || 0;
+                const lineSubtotal = qty * precio;
+                const ivaRate = lineSubtotal * (ivaPercent / 100);
+                const lineTotal = lineSubtotal + ivaRate;
+                row.querySelector('.subtotal-cell').innerText = qty > 0 ? lineSubtotal.toFixed(2) + ' €' : '-';
+                if (qty > 0) {
+                    subtotal += lineSubtotal;
+                    tax += ivaRate;
+                    html += `<li class="list-group-item d-flex justify-content-between px-0"><span>${nombre} (${qty.toFixed(2)} ${unidad})</span><strong>${lineTotal.toFixed(2)} €</strong></li>`;
+                }
+            });
+            html += '</ul>';
+            summaryBox.innerHTML = html;
+            grandSubtotal.innerText = subtotal.toFixed(2);
+            grandTax.innerText = tax.toFixed(2);
+            grandTotal.innerText = (subtotal + tax).toFixed(2);
+        }
+
+        document.querySelectorAll('.qty-input').forEach(input => {
+            input.addEventListener('input', function () { sanitizeTwoDecimals(this); updateSummary(); });
+            input.addEventListener('blur', function () {
+                const val = parseFloat((this.value || '0').replace(',', '.'));
+                if (!isNaN(val) && this.value !== '') this.value = val.toFixed(2);
+                updateSummary();
+            });
+        });
+        filterButtons.forEach(button => button.addEventListener('click', function () { applyCategoryFilter(this.dataset.filter); }));
+
+        applyCategoryFilter('todo');
+        updateSummary();
     });
 
-    headers.forEach(header => {
-      const group = header.dataset.categoryGroup || 'sin-categoria';
-      const hasVisibleRows = Array.from(rows).some(row => row.dataset.category === group && row.style.display !== 'none');
-      header.style.display = filter === 'todo' ? (hasVisibleRows ? '' : 'none') : (hasVisibleRows ? '' : 'none');
+    
+
+    const searchInput = document.getElementById('product-search');
+
+    searchInput.addEventListener('keyup', function () {
+
+    const value = this.value.toLowerCase();
+
+    document.querySelectorAll('.product-row').forEach(row => {
+
+        const nombre = row.dataset.producto;
+
+        if (nombre.includes(value)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+
     });
 
-    filterButtons.forEach(btn => {
-      const active = btn.dataset.filter === filter;
-      btn.classList.toggle('btn-success', active);
-      btn.classList.toggle('btn-outline-success', !active);
-      btn.classList.toggle('active', active);
-    });
-  }
-
-  function updateSummary() {
-    let subtotal = 0;
-    let tax = 0;
-    let html = '<ul class="list-group list-group-flush">';
-    rows.forEach(row => {
-      const nombre = row.children[1].innerText.trim();
-      const precio = parseFloat(row.querySelector('.price-cell').innerText.replace(',', '.')) || 0;
-      const unidad = row.children[5].innerText.trim();
-      const input = row.querySelector('.qty-input');
-      sanitizeTwoDecimals(input);
-      const qty = parseFloat((input.value || '0').replace(',', '.')) || 0;
-      const ivaPercent = parseFloat(row.dataset.iva || '0') || 0;
-      const lineSubtotal = qty * precio;
-      const ivaRate = lineSubtotal * (ivaPercent / 100);
-      const lineTotal = lineSubtotal + ivaRate;
-      row.querySelector('.subtotal-cell').innerText = qty > 0 ? lineSubtotal.toFixed(2) + ' €' : '-';
-      if (qty > 0) {
-        subtotal += lineSubtotal;
-        tax += ivaRate;
-        html += `<li class="list-group-item d-flex justify-content-between px-0"><span>${nombre} (${qty.toFixed(2)} ${unidad})</span><strong>${lineTotal.toFixed(2)} €</strong></li>`;
-      }
-    });
-    html += '</ul>';
-    summaryBox.innerHTML = html;
-    grandSubtotal.innerText = subtotal.toFixed(2);
-    grandTax.innerText = tax.toFixed(2);
-    grandTotal.innerText = (subtotal + tax).toFixed(2);
-  }
-
-  document.querySelectorAll('.qty-input').forEach(input => {
-    input.addEventListener('input', function () { sanitizeTwoDecimals(this); updateSummary(); });
-    input.addEventListener('blur', function () {
-      const val = parseFloat((this.value || '0').replace(',', '.'));
-      if (!isNaN(val) && this.value !== '') this.value = val.toFixed(2);
-      updateSummary();
-    });
-  });
-  filterButtons.forEach(button => button.addEventListener('click', function () { applyCategoryFilter(this.dataset.filter); }));
-
-  applyCategoryFilter('todo');
-  updateSummary();
 });
+
+
 </script>
 {% endblock %}

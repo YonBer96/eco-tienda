@@ -1,5 +1,6 @@
 from django import forms
 
+from .models import OrderCycle
 from accounts.models import Cliente, Tienda
 from .models import Pedido
 
@@ -21,3 +22,27 @@ class PedidoMetaForm(forms.ModelForm):
         else:
             self.fields['cliente'].queryset = Cliente.objects.filter(activo=True)
             self.fields['tienda'].queryset = Tienda.objects.filter(activa=True)
+
+
+
+class OrderCycleForm(forms.ModelForm):
+    class Meta:
+        model = OrderCycle
+        fields = [
+            'nombre',
+            'inicio',
+            'cierre',
+            'dias_reparto',
+            'cerrado',
+        ]
+
+        widgets = {
+            'inicio': forms.DateTimeInput(
+                attrs={'type': 'datetime-local'},
+                format='%Y-%m-%dT%H:%M'
+            ),
+            'cierre': forms.DateTimeInput(
+                attrs={'type': 'datetime-local'},
+                format='%Y-%m-%dT%H:%M'
+            ),
+        }

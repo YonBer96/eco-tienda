@@ -11,12 +11,22 @@
 <form method="get" class="row g-2 mb-3">
   <div class="col-md-5"><input class="form-control" type="text" name="q" placeholder="Buscar producto u origen" value="{{ query }}"></div>
   <div class="col-md-5">
-    <select class="form-select" name="categoria">
-      <option value="">Todas las categorías</option>
-      {% for categoria in categorias %}
-      <option value="{{ categoria.id }}" {% if categoria_id == categoria.id|stringformat:'s' %}selected{% endif %}>{{ categoria.nombre }}</option>
-      {% endfor %}
-    </select>
+      <select class="form-select" name="categoria">
+          <option value="">Todas las categorías</option>
+          {% for categoria in categorias %}
+
+          {% if categoria_id == categoria.id|stringformat:'s' %}
+          <option value="{{ categoria.id }}" selected>
+              {% else %}
+          <option value="{{ categoria.id }}">
+              {% endif %}
+
+              {{ categoria.nombre }}
+
+          </option>
+
+          {% endfor %}
+      </select>
   </div>
   <div class="col-md-2"><button class="btn btn-outline-success w-100">Filtrar</button></div>
 </form>

@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-hero">
+    <div>
+        <h1>{{ titulo }}</h1>
+        <p class="text-muted">Formulario de gestión de productos.</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="row g-3">
+
+                <div class="col-md-6">
+                    <label class="form-label">Nombre</label>
+                    {{ form.nombre }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Categoría</label>
+                    {{ form.categoria }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Proveedor</label>
+                    {{ form.proveedor }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Origen</label>
+                    {{ form.origen }}
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Precio</label>
+                    {{ form.precio }}
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">IVA</label>
+                    {{ form.iva }}
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Unidad</label>
+                    {{ form.unidad_medida }}
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Pedido mínimo</label>
+                    {{ form.pedido_minimo }}
+                </div>
+
+                {% if form.paso_pedido %}
+                <div class="col-md-3">
+                    <label class="form-label">Paso de pedido</label>
+                    {{ form.paso_pedido }}
+                </div>
+                {% endif %}
+
+                <div class="col-md-3 d-flex align-items-center">
+                    <div class="form-check mt-4">
+                        {{ form.activo }}
+                        <label class="form-check-label">
+                            Producto activo
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-success">
+                    Guardar producto
+                </button>
+
+                <a href="{% url 'producto_list' %}" class="btn btn-outline-secondary">
+                    Cancelar
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

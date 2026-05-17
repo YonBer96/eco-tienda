@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-hero">
+    <div>
+        <h1>{{ titulo }}</h1>
+        <p class="text-muted">Formulario de gestión de clientes.</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="row g-3">
+
+                <div class="col-md-6">
+                    <label class="form-label">Nombre</label>
+                    {{ form.nombre }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">NIF</label>
+                    {{ form.nif }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Teléfono</label>
+                    {{ form.telefono }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Email</label>
+                    {{ form.email }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Dirección</label>
+                    {{ form.direccion }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Dirección de facturación</label>
+                    {{ form.direccion_facturacion }}
+                </div>
+
+               
+
+                <div class="col-md-6 d-flex align-items-center">
+                    <div class="form-check mt-4">
+                        {{ form.activo }}
+                        <label class="form-check-label">
+                            Cliente activo
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-success">
+                    Guardar
+                </button>
+
+                <a href="{% url 'cliente_list' %}" class="btn btn-outline-secondary">
+                    Cancelar
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

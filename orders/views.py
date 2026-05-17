@@ -14,8 +14,22 @@ from .forms import PedidoMetaForm
 from .models import LineaPedido, OrderCycle, Pedido
 
 
+from django.utils import timezone
+from .forms import OrderCycleForm
+from .models import OrderCycle
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+
+
+
 def get_current_cycle():
-    return OrderCycle.objects.filter(cerrado=False).order_by('-inicio').first()
+    now = timezone.now()
+    return OrderCycle.objects.filter(
+        cerrado=False,
+        inicio__lte=now,
+        cierre__gte=now
+    ).order_by('-inicio').first()
 
 
 def quantize_2(value):
@@ -36,7 +50,7 @@ def pedido_list(request):
 @transaction.atomic
 def pedido_create(request):
     ciclo = get_current_cycle()
-    if not ciclo or not ciclo.esta_abierto or (not request.user.is_superuser and not ordering_window_open()):
+    if not ciclo or not ciclo.esta_abierto:
         messages.error(request, 'La tienda está cerrada en este momento.')
         return redirect('pedido_list')
 
@@ -180,3 +194,60 @@ def pedido_delete(request, pk):
         return redirect('pedido_list')
 
     return render(request, 'orders/pedido_confirm_delete.html', {'pedido': pedido})
+
+
+
+
+def admin_required(user):
+    return user.is_superuser
+
+
+@login_required
+@user_passes_test(admin_required)
+def cycle_list(request):
+    ciclos = OrderCycle.objects.all().order_by('-inicio')
+    return render(request, 'orders/cycle_list.html', {'ciclos': ciclos})
+
+
+@login_required
+@user_passes_test(admin_required)
+def cycle_create(request):
+    form = OrderCycleForm(request.POST or None)
+
+    if form.is_valid():
+        form.save()
+        messages.success(request, 'Ciclo creado correctamente.')
+        return redirect('cycle_list')
+
+    return render(request, 'orders/cycle_form.html', {
+        'form': form,
+        'titulo': 'Nuevo ciclo'
+    })
+
+
+@login_required
+@user_passes_test(admin_required)
+def cycle_update(request, pk):
+    ciclo = get_object_or_404(OrderCycle, pk=pk)
+    form = OrderCycleForm(request.POST or None, instance=ciclo)
+
+    if form.is_valid():
+        form.save()
+        messages.success(request, 'Ciclo actualizado correctamente.')
+        return redirect('cycle_list')
+
+    return render(request, 'orders/cycle_form.html', {
+        'form': form,
+        'titulo': 'Editar ciclo'
+    })
+
+
+@login_required
+@user_passes_test(admin_required)
+def cycle_delete(request, pk):
+    ciclo = get_object_or_404(OrderCycle, pk=pk)
+    ciclo.cerrado = True
+    ciclo.save(update_fields=['cerrado'])
+
+    messages.warning(request, 'Ciclo cerrado correctamente.')
+    return redirect('cycle_list')

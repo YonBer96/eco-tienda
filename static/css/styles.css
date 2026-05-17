@@ -1,5 +1,5 @@
 :root {
-    --bg: #f4faf5;
+    --bg: #f6f8f6;
     --panel: #ffffff;
     --text: #10241a;
     --muted: #5f6f66;
@@ -9,8 +9,8 @@
     --line: #dbe7df;
     --warning-bg: #fff6dc;
     --warning-line: #f2d47b;
-    --shadow: 0 14px 35px rgba(20,60,35,.09);
-    --radius: 18px;
+    --shadow: 0 4px 14px rgba(20,60,35,.07);
+    --radius: 14px;
 }
 
 * {
@@ -21,17 +21,17 @@ body {
     margin: 0;
     font-family: Inter, system-ui, sans-serif;
     color: var(--text);
-    background: radial-gradient(circle at 15% 10%, rgba(35,132,71,.08), transparent 28%), radial-gradient(circle at 90% 5%, rgba(242,212,123,.18), transparent 25%), linear-gradient(180deg, #fbfdfb 0%, var(--bg) 100%);
+    background: #f6f8f6;
     min-height: 100vh;
     overflow-x: hidden;
 }
 
 /* NAVBAR */
 .navbar {
-    background: rgba(255,255,255,.94) !important;
-    backdrop-filter: blur(12px);
+    background: rgba(255,255,255,.96) !important;
+    backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--line);
-    padding: 1rem 1.2rem;
+    padding: .65rem 1rem;
 }
 
 .navbar-brand {
@@ -41,7 +41,7 @@ body {
 .nav-link {
     font-weight: 600;
     border-radius: 999px;
-    padding: .6rem .9rem !important;
+    padding: .45rem .75rem !important;
 }
 
     .nav-link:hover {
@@ -50,30 +50,32 @@ body {
 
 /* LAYOUT */
 .container {
-    max-width: 1180px;
-    padding: 2rem 1.2rem;
+    max-width: 1280px;
+    padding: .8rem 1rem;
 }
 
 /* TITULOS */
 h1 {
-    font-size: 2.3rem;
+    font-size: 2rem;
     font-weight: 850;
-    margin-bottom: .6rem;
+    margin-bottom: .25rem;
 }
 
 h2 {
+    font-size: 1.35rem;
     font-weight: 800;
 }
 
 p {
     color: var(--muted);
+    margin-bottom: .6rem;
 }
 
 /* ALERTAS */
 .alert {
-    border-radius: 14px;
-    padding: 1rem 1.2rem;
-    margin-bottom: 2rem;
+    border-radius: 12px;
+    padding: .7rem 1rem;
+    margin-bottom: 1rem;
 }
 
 /* CARDS */
@@ -81,18 +83,19 @@ p {
     border-radius: var(--radius) !important;
     border: 1px solid var(--line) !important;
     box-shadow: var(--shadow);
-    margin-bottom: 1.8rem;
+    margin-bottom: 1rem;
 }
 
 .card-body {
-    padding: 1.4rem !important;
+    padding: 1rem !important;
 }
 
 /* BOTONES */
 .btn {
-    border-radius: 12px !important;
+    border-radius: 10px !important;
     font-weight: 700 !important;
-    padding: .7rem 1.1rem !important;
+    padding: .55rem .9rem !important;
+    font-size: .95rem !important;
 }
 
 .btn-success {
@@ -105,29 +108,38 @@ p {
     }
 
 /* FORMULARIOS */
-.form-control, .form-select, textarea, input {
-    border-radius: 12px !important;
+.form-control,
+.form-select,
+textarea,
+input {
+    border-radius: 10px !important;
     border: 1px solid var(--line) !important;
-    padding: .7rem !important;
+    padding: .55rem .65rem !important;
+    font-size: .95rem !important;
 }
+
+    textarea.form-control,
+    textarea {
+        min-height: 72px;
+    }
 
     .form-control:focus {
         border-color: var(--green) !important;
-        box-shadow: 0 0 0 .2rem rgba(35,132,71,.12) !important;
+        box-shadow: 0 0 0 .18rem rgba(35,132,71,.12) !important;
     }
 
 /* PERFIL */
 .profile-address-field textarea {
     width: 100%;
-    min-height: 110px;
-    max-height: 180px;
+    min-height: 90px;
+    max-height: 150px;
     resize: vertical;
 }
 
 .card .row.g-3 > div {
     display: flex;
     flex-direction: column;
-    gap: .3rem;
+    gap: .25rem;
 }
 
 .card .row.g-3 label {
@@ -136,35 +148,51 @@ p {
 
 /* TABLAS */
 .table-responsive {
-    border-radius: var(--radius);
+    border-radius: 12px;
     overflow-x: auto;
-    box-shadow: var(--shadow);
+    box-shadow: none;
+    border: 1px solid var(--line);
 }
 
 .table {
     background: white;
     margin: 0 !important;
+    font-size: .92rem;
 }
 
     .table th {
         background: #eef7f1;
         text-transform: uppercase;
-        font-size: .8rem;
+        font-size: .72rem;
+        padding: .55rem .45rem !important;
+        white-space: nowrap;
     }
 
     .table td {
-        padding: 1rem !important;
+        padding: .55rem .45rem !important;
+        vertical-align: middle;
     }
 
-        .table td .btn {
-            margin: .2rem;
-        }
+    .table tbody tr:hover {
+        background: #fafafa;
+    }
+
+    .table td .btn {
+        margin: .05rem;
+    }
+
+/* INPUT CANTIDAD */
+input[type="number"] {
+    width: 70px;
+    height: 38px;
+    text-align: center;
+}
 
 /* UNIDADES */
 .unit {
     color: var(--muted);
-    font-size: .9em;
-    margin-left: .2rem;
+    font-size: .82em;
+    margin-left: .15rem;
 }
 
 /* PAGE HERO */
@@ -173,9 +201,32 @@ p {
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    gap: .7rem;
+    margin-bottom: 1rem;
 }
+
+
+
+/* RESUMEN LATERAL */
+/* RESUMEN STICKY */
+.sticky-summary {
+    position: sticky;
+    top: 90px;
+    align-self: flex-start;
+}
+
+@media (max-width: 992px) {
+    .sticky-summary {
+        position: static;
+    }
+}
+
+
+    .summary-card .card-body,
+    .resumen-card .card-body,
+    .card-resumen .card-body {
+        padding: 1rem !important;
+    }
 
 /* FIX OVERFLOW */
 .row {
@@ -185,6 +236,13 @@ p {
 
 /* RESPONSIVE */
 @media(max-width:768px) {
+    .container {
+        padding: .7rem;
+    }
+
+    h1 {
+        font-size: 1.65rem;
+    }
 
     .btn {
         width: 100%;
@@ -199,22 +257,24 @@ p {
         display: none;
     }
 
-    .table, .table tr, .table td {
+    .table,
+    .table tr,
+    .table td {
         display: block;
         width: 100%;
     }
 
         .table tr {
             border: 1px solid var(--line);
-            border-radius: 14px;
-            margin-bottom: 1rem;
-            padding: .8rem;
+            border-radius: 12px;
+            margin-bottom: .6rem;
+            padding: .4rem;
         }
 
         .table td {
             display: flex;
             justify-content: space-between;
-            padding: .6rem 0 !important;
+            padding: .55rem 0 !important;
             border-bottom: 1px solid #eee;
         }
 

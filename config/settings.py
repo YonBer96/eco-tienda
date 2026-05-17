@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'catalog',
     'orders',
     'reports',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [

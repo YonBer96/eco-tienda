@@ -10,6 +10,11 @@ from .models import Cliente
 
 from .forms import ProfileUpdateForm, UserUpdateForm
 
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import get_object_or_404
+from .models import Cliente, Tienda
+from .forms import ClienteForm, TiendaForm
+
 
 @login_required
 def dashboard_redirect(request):
@@ -66,3 +71,46 @@ class CustomPasswordChangeView(PasswordChangeView):
     def form_valid(self, form):
         messages.success(self.request, 'La contraseña se ha cambiado correctamente.')
         return super().form_valid(form)
+
+def admin_required(user):
+    return user.is_superuser
+
+
+@login_required
+@user_passes_test(admin_required)
+def cliente_list(request):
+    clientes = Cliente.objects.all()
+    return render(request, 'accounts/cliente_list.html', {'clientes': clientes})
+
+
+@login_required
+@user_passes_test(admin_required)
+def cliente_create(request):
+    form = ClienteForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+        messages.success(request, 'Cliente creado correctamente.')
+        return redirect('cliente_list')
+    return render(request, 'accounts/cliente_form.html', {'form': form, 'titulo': 'Nuevo cliente'})
+
+
+@login_required
+@user_passes_test(admin_required)
+def cliente_update(request, pk):
+    cliente = get_object_or_404(Cliente, pk=pk)
+    form = ClienteForm(request.POST or None, instance=cliente)
+    if form.is_valid():
+        form.save()
+        messages.success(request, 'Cliente actualizado correctamente.')
+        return redirect('cliente_list')
+    return render(request, 'accounts/cliente_form.html', {'form': form, 'titulo': 'Editar cliente'})
+
+
+@login_required
+@user_passes_test(admin_required)
+def cliente_delete(request, pk):
+    cliente = get_object_or_404(Cliente, pk=pk)
+    cliente.activo = False
+    cliente.save(update_fields=['activo'])
+    messages.warning(request, 'Cliente desactivado correctamente.')
+    return redirect('cliente_list')

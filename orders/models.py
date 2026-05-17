@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from accounts.models import Cliente, Tienda
 from catalog.models import Producto, Proveedor
-from core.utils import ordering_window_open
+
 
 
 def quantize_2(value):
@@ -16,23 +16,24 @@ def quantize_2(value):
 
 
 class OrderCycle(models.Model):
-    nombre = models.CharField(max_length=100, unique=True)
+    nombre = models.CharField(max_length=100)
     inicio = models.DateTimeField()
     cierre = models.DateTimeField()
-    reparto_inicio = models.DateTimeField(null=True, blank=True)
-    reparto_fin = models.DateTimeField(null=True, blank=True)
+    dias_reparto = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text="Ejemplo: Lunes y Martes"
+    )
     cerrado = models.BooleanField(default=False)
-
-    class Meta:
-        ordering = ['-inicio']
 
     def __str__(self):
         return self.nombre
 
     @property
     def esta_abierto(self):
+        from django.utils import timezone
         now = timezone.now()
-        return self.inicio <= now <= self.cierre and not self.cerrado
+        return not self.cerrado and self.inicio <= now <= self.cierre
 
 
 class Pedido(models.Model):
@@ -82,7 +83,7 @@ class Pedido(models.Model):
             return False
         if self.estado == self.ANULADO:
             return False
-        return self.ciclo.esta_abierto and ordering_window_open()
+        return self.ciclo.esta_abierto
 
 
 class LineaPedido(models.Model):

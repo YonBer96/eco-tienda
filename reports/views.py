@@ -18,6 +18,8 @@ from django.core.mail import EmailMessage
 from io import BytesIO
 from django.template.loader import render_to_string
 from xhtml2pdf import pisa
+from orders.models import OrderCycle
+from orders.models import OrderCycle
 
 
 def quantize_2(value):
@@ -411,16 +413,51 @@ def supplier_email_draft(request, proveedor_id):
 
 @user_passes_test(lambda u: u.is_superuser)
 def weekly_summary(request):
-    ciclo = get_cycle_or_latest()
-    resumen = build_weekly_summary(ciclo) if ciclo else {'lineas': [], 'total_referencias': 0, 'total_cantidad': Decimal('0.00')}
-    return render(request, 'reports/weekly_summary.html', {'ciclo': ciclo, 'resumen': resumen})
+    ciclos = OrderCycle.objects.all().order_by('-inicio')
+    ciclo_id = request.GET.get('ciclo')
+
+    if ciclo_id:
+        ciclo = OrderCycle.objects.filter(pk=ciclo_id).first()
+    else:
+        ciclo = get_cycle_or_latest()
+
+    resumen = build_weekly_summary(ciclo) if ciclo else {
+        'lineas': [],
+        'total_referencias': 0,
+        'total_cantidad': Decimal('0.00')
+    }
+
+    return render(request, 'reports/weekly_summary.html', {
+        'ciclo': ciclo,
+        'ciclos': ciclos,
+        'resumen': resumen,
+    })
 
 
 @user_passes_test(lambda u: u.is_superuser)
 def supplier_summary(request):
-    ciclo = get_cycle_or_latest()
-    proveedor_data = build_supplier_summary(ciclo) if ciclo else {'suppliers': [], 'grouped': {}, 'supplier_totals': {}, 'supplier_count': 0, 'flat': []}
-    return render(request, 'reports/supplier_summary.html', {'ciclo': ciclo, **proveedor_data})
+    ciclos = OrderCycle.objects.all().order_by('-inicio')
+    ciclo_id = request.GET.get('ciclo')
+
+    if ciclo_id:
+        ciclo = OrderCycle.objects.filter(pk=ciclo_id).first()
+    else:
+        ciclo = get_cycle_or_latest()
+
+    proveedor_data = build_supplier_summary(ciclo) if ciclo else {
+        'suppliers': [],
+        'grouped': {},
+        'supplier_totals': {},
+        'supplier_count': 0,
+        'flat': []
+    }
+
+    return render(request, 'reports/supplier_summary.html', {
+    'ciclo': ciclo,
+    'ciclos': ciclos,
+    'ciclo_id': ciclo.id if ciclo else None,
+    **proveedor_data,
+})
 
 
 @user_passes_test(lambda u: u.is_superuser)
@@ -441,25 +478,34 @@ def weekly_summary_pdf(request, ciclo_id=None):
         return redirect('weekly_summary')
     return response
 
-
 @user_passes_test(lambda u: u.is_superuser)
 def supplier_summary_pdf(request, ciclo_id=None):
     ciclo = get_cycle_or_latest(ciclo_id)
+
     if not ciclo:
         messages.error(request, 'No hay ciclos disponibles.')
         return redirect('admin_dashboard')
 
     proveedor_data = build_supplier_summary(ciclo)
+
     response = render_pdf(
         'reports/albaran_proveedores.html',
-        {'ciclo': ciclo, **proveedor_data, 'generated_at': timezone.localtime()},
+        {
+            'ciclo': ciclo,
+            **proveedor_data,
+            'generated_at': timezone.localtime(),
+        },
         filename=f'albaran_proveedores_ciclo_{ciclo.id}.pdf'
     )
-    if response is None:
-        messages.error(request, 'La generación de PDF no está disponible porque WeasyPrint no está instalado correctamente en este equipo.')
-        return redirect('supplier_summary')
-    return response
 
+    if response is None:
+        messages.error(
+            request,
+            'La generación de PDF no está disponible porque WeasyPrint no está instalado correctamente en este equipo.'
+        )
+        return redirect('supplier_summary')
+
+    return response
 
 @user_passes_test(lambda u: u.is_superuser)
 def albaran_semanal_general_pdf(request, ciclo_id):
