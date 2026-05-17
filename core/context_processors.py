@@ -15,7 +15,7 @@ def shop_status(request):
 
     if ciclo:
         shop_open = True
-        shop_status_message = f'La tienda está abierta para el ciclo {ciclo.nombre} hasta {ciclo.cierre.strftime("%d/%m/%Y %H:%M")}.'
+        shop_status_message = f'La tienda está abierta para la semana {ciclo.nombre} hasta {ciclo.cierre.strftime("%d/%m/%Y %H:%M")}.'
     else:
         shop_open = False
         proximo = OrderCycle.objects.filter(
