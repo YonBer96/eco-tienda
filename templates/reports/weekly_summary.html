@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load core_extras %}
+{% block content %}
+<div class="page-hero"><div><h1 class="mb-2">Albarán general semanal</h1><p class="text-muted mb-0">{% if ciclo %}{{ ciclo.nombre }}{% else %}No hay ciclos disponibles{% endif %}</p></div>{% if ciclo %}<a href="{% url 'weekly_summary_pdf' %}" class="btn btn-success">Descargar PDF</a>{% endif %}</div>
+<div class="row g-3 mb-3">
+  <div class="col-md-6"><div class="card panel-card metric-card shadow-sm border-0"><div class="card-body"><div class="text-muted small">Referencias</div><div class="metric-value">{{ resumen.total_referencias }}</div></div></div></div>
+  <div class="col-md-6"><div class="card panel-card metric-card shadow-sm border-0"><div class="card-body"><div class="text-muted small">Cantidad total</div><div class="metric-value">{{ resumen.total_cantidad|qty2 }}</div></div></div></div>
+</div>
+<div class="card panel-card shadow-sm border-0"><div class="card-body"><div class="table-responsive">
+<table class="table table-striped"><thead><tr><th>Producto</th><th>Total pedido</th><th>Unidad</th><th>Formato caja</th><th>Cajas</th><th>Resto suelto</th><th>Pedido a proveedor</th></tr></thead><tbody>
+{% for item in resumen.lineas %}<tr><td>{{ item.nombre_producto_snapshot }}</td><td>{{ item.total_cantidad|qty2 }}</td><td>{{ item.unidad_medida_snapshot }}</td><td>{% if item.formato_caja %}{{ item.formato_caja|qty2 }} {{ item.unidad_medida_snapshot }}{% else %}-{% endif %}</td><td>{% if item.cajas_completas != None %}{{ item.cajas_completas }}{% else %}-{% endif %}</td><td>{% if item.resto_suelto != None %}{{ item.resto_suelto|qty2 }} {{ item.unidad_medida_snapshot }}{% else %}-{% endif %}</td><td>{{ item.pedido_proveedor }}</td></tr>{% empty %}<tr><td colspan="7" class="text-center text-muted">No hay pedidos confirmados o no existe un ciclo activo.</td></tr>{% endfor %}
+</tbody></table></div></div></div>
+{% endblock %}

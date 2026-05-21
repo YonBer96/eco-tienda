@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-hero">
+    <div>
+        <h1>{{ titulo }}</h1>
+        <p class="text-muted">Define cuándo abre, cuándo cierra y qué días se reparte.</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+
+        <form method="post">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Nombre del ciclo</label>
+                    {{ form.nombre }}
+                    {{ form.nombre.errors }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Días de reparto</label>
+                    <div class="d-flex gap-3 flex-wrap mt-2">
+                        {% for checkbox in form.dias_reparto %}
+                            <label class="form-check d-flex align-items-center gap-2">
+                                {{ checkbox.tag }}
+                                <span>{{ checkbox.choice_label }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                    {{ form.dias_reparto.errors }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Fecha y hora de apertura</label>
+                    {{ form.inicio }}
+                    {{ form.inicio.errors }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Fecha y hora de cierre</label>
+                    {{ form.cierre }}
+                    {{ form.cierre.errors }}
+                </div>
+
+                <div class="col-md-6 d-flex align-items-center">
+                    <div class="form-check mt-4">
+                        {{ form.cerrado }}
+                        <label class="form-check-label">Ciclo cerrado</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-success">Guardar ciclo</button>
+                <a href="{% url 'cycle_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

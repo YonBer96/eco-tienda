@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card panel-card shadow-sm border-0">
+      <div class="card-body p-4">
+        <h1 class="h4 mb-3">Nuevo pedido</h1>
+        <p class="text-muted">Ciclo actual: {{ ciclo.nombre }}</p>
+        <form method="post">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-6">{{ form.cliente.label_tag }}{{ form.cliente }}</div>
+            <div class="col-md-6">{{ form.tienda.label_tag }}{{ form.tienda }}</div>
+            <div class="col-12">{{ form.observaciones.label_tag }}{{ form.observaciones }}</div>
+          </div>
+          <button class="btn btn-success mt-3">Continuar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-hero">
+    <div>
+        <h1 class="mb-2">Panel de administración</h1>
+        <p class="text-muted mb-0">Controla clientes, tiendas, catálogo, proveedores, pedidos y ciclos desde una interfaz limpia y actual.</p>
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+    <div class="col">
+        <div class="card panel-card p-3 shadow-sm h-100">
+            <h5>Clientes</h5>
+            <p class="mb-0 text-muted">Alta, baja y edición.</p>
+            <a href="{% url 'cliente_list' %}" class="btn btn-success mt-3">Ver clientes</a>
+        </div>
+    </div>
+
+    <div class="col">
+        <div class="card panel-card p-3 shadow-sm h-100">
+            <h5>Tiendas</h5>
+            <p class="mb-0 text-muted">Tiendas asociadas a clientes.</p>
+            <a href="{% url 'tienda_list' %}" class="btn btn-success mt-3">Ver tiendas</a>
+        </div>
+    </div>
+
+    <div class="col">
+        <div class="card panel-card p-3 shadow-sm h-100">
+            <h5>Productos</h5>
+            <p class="mb-0 text-muted">Gestión avanzada del catálogo.</p>
+            <a href="/admin/catalog/producto/" class="btn btn-success mt-3">Ver productos</a>
+        </div>
+    </div>
+
+    <div class="col">
+        <div class="card panel-card p-3 shadow-sm h-100">
+            <h5>Proveedores</h5>
+            <p class="mb-0 text-muted">Alta, baja y edición.</p>
+            <a href="{% url 'proveedor_list' %}" class="btn btn-success mt-3">Ver proveedores</a>
+        </div>
+    </div>
+
+    <div class="col">
+        <div class="card panel-card p-3 shadow-sm h-100">
+            <h5>Pedidos</h5>
+            <p class="mb-0 text-muted">Historial completo.</p>
+            <a href="{% url 'pedido_list' %}" class="btn btn-success mt-3">Ver pedidos</a>
+        </div>
+    </div>
+
+    <div class="col">
+        <div class="card panel-card p-3 shadow-sm h-100">
+            <h5>Ciclos</h5>
+            <p class="mb-0 text-muted">Apertura, cierre y reparto.</p>
+            <a href="{% url 'cycle_list' %}" class="btn btn-success mt-3">Ver ciclos</a>
+        </div>
+    </div>
+</div>
+
+<div class="card panel-card p-4 shadow-sm">
+    <h4 class="mb-3">Accesos rápidos</h4>
+    <div class="d-flex gap-2 flex-wrap">
+        <a href="{% url 'pedido_create' %}" class="btn btn-outline-success">Nuevo pedido</a>
+        <a href="{% url 'cliente_create' %}" class="btn btn-outline-success">Nuevo cliente</a>
+        <a href="{% url 'tienda_create' %}" class="btn btn-outline-success">Nueva tienda</a>
+        <a href="{% url 'proveedor_create' %}" class="btn btn-outline-success">Nuevo proveedor</a>
+        <a href="{% url 'cycle_create' %}" class="btn btn-outline-success">Nuevo ciclo</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card panel-card shadow-sm border-0">
+      <div class="card-body p-4 text-center">
+        <h1 class="h4">Anular pedido #{{ pedido.id }}</h1>
+        <p>Esta acción no borra el histórico, pero deja el pedido como anulado.</p>
+        <form method="post">
+          {% csrf_token %}
+          <button class="btn btn-danger">Confirmar anulación</button>
+          <a href="{% url 'pedido_detail' pedido.id %}" class="btn btn-outline-secondary">Cancelar</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
