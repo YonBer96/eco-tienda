@@ -1,43 +1,28 @@
 from django import forms
 from django.contrib.auth.models import User
-<<<<<<< HEAD
 
 from .models import Cliente, PerfilUsuario, Tienda
-=======
-from .models import Cliente, Tienda
-from .models import PerfilUsuario
-
->>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
 
 
 class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email']
-<<<<<<< HEAD
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
         }
-=======
->>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
 
 
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = PerfilUsuario
         fields = ['telefono', 'direccion']
-<<<<<<< HEAD
         widgets = {
             'telefono': forms.TextInput(attrs={'class': 'form-control'}),
             'direccion': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
         }
-=======
-        widgets = {'direccion': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
-                   'direccion_facturacion': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
-}
->>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
 
 
 class ClienteForm(forms.ModelForm):
@@ -53,7 +38,6 @@ class ClienteForm(forms.ModelForm):
             'activo',
         ]
         widgets = {
-<<<<<<< HEAD
             'nombre': forms.TextInput(attrs={'class': 'form-control'}),
             'nif': forms.TextInput(attrs={'class': 'form-control'}),
             'telefono': forms.TextInput(attrs={'class': 'form-control'}),
@@ -93,13 +77,6 @@ class ClienteCreateForm(ClienteForm):
         return cleaned_data
 
 
-=======
-            'direccion': forms.Textarea(attrs={'rows': 3}),
-            'direccion_facturacion': forms.Textarea(attrs={'rows': 3}),
-        }
-
-
->>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
 class TiendaForm(forms.ModelForm):
     class Meta:
         model = Tienda
@@ -113,7 +90,6 @@ class TiendaForm(forms.ModelForm):
             'activa',
         ]
         widgets = {
-<<<<<<< HEAD
             'cliente': forms.Select(attrs={'class': 'form-select'}),
             'nombre': forms.TextInput(attrs={'class': 'form-control'}),
             'direccion': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
@@ -122,8 +98,3 @@ class TiendaForm(forms.ModelForm):
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'activa': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
-=======
-            'direccion': forms.Textarea(attrs={'rows': 3}),
-            'direccion_facturacion': forms.Textarea(attrs={'rows': 3}),
-        }
->>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e

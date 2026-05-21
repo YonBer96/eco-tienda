@@ -45,25 +45,17 @@ def pedido_list(request):
         pedidos = pedidos.filter(usuario=request.user)
     return render(request, 'orders/pedido_list.html', {'pedidos': pedidos})
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
 @login_required
 @transaction.atomic
 def pedido_create(request):
     ciclo = get_current_cycle()
-<<<<<<< HEAD
 
-=======
->>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
     if not ciclo or not ciclo.esta_abierto:
         messages.error(request, 'La tienda está cerrada en este momento.')
         return redirect('pedido_list')
 
     if request.method == 'POST':
         form = PedidoMetaForm(request.POST, user=request.user)
-<<<<<<< HEAD
 
         if form.is_valid():
             tienda = form.cleaned_data['tienda']
@@ -104,41 +96,6 @@ def pedido_create(request):
         'form': form,
         'ciclo': ciclo
     })
-=======
-        if form.is_valid():
-            tienda = form.cleaned_data['tienda']
-            cliente = form.cleaned_data['cliente']
-            try:
-                pedido, created = Pedido.objects.get_or_create(
-                    ciclo=ciclo,
-                    tienda=tienda,
-                    defaults={
-                        'usuario': request.user,
-                        'cliente': cliente,
-                        'observaciones': form.cleaned_data.get('observaciones', ''),
-                    }
-                )
-                if not created:
-                    if not pedido.puede_editarse_por(request.user):
-                        raise Http404
-                    messages.info(request, 'Ya existía un pedido para esa tienda esta semana. Se ha abierto para editarlo.')
-                else:
-                    pedido.observaciones = form.cleaned_data.get('observaciones', '')
-                    pedido.save()
-            except IntegrityError:
-                messages.error(request, 'No se pudo crear el pedido.')
-                return redirect('pedido_list')
-            return redirect('pedido_edit', pk=pedido.pk)
-    else:
-        initial = {}
-        if not request.user.is_superuser:
-            primer_cliente = Cliente.objects.filter(usuarios=request.user, activo=True).first()
-            if primer_cliente:
-                initial['cliente'] = primer_cliente
-        form = PedidoMetaForm(user=request.user, initial=initial)
-
-    return render(request, 'orders/pedido_form.html', {'form': form, 'ciclo': ciclo})
->>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
 
 
 @login_required
@@ -203,7 +160,6 @@ def pedido_edit(request, pk):
         if 'confirmar' in request.POST:
             pedido.estado = Pedido.CONFIRMADO
             pedido.save(update_fields=['estado', 'actualizado_en'])
-<<<<<<< HEAD
 
             from reports.services import send_customer_order_documents
 
@@ -213,9 +169,6 @@ def pedido_edit(request, pk):
             else:
                 messages.warning(request, email_message)
 
-=======
-            messages.success(request, 'Pedido confirmado correctamente.')
->>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
             return redirect('pedido_detail', pk=pedido.pk)
 
         messages.success(request, 'Pedido actualizado correctamente.')
@@ -239,12 +192,8 @@ def pedido_detail(request, pk):
     )
     if not request.user.is_superuser and pedido.usuario_id != request.user.id:
         raise Http404
-<<<<<<< HEAD
     lineas = pedido.lineas.filter(cantidad__gt=0)
     return render(request, 'orders/pedido_detail.html', {'pedido': pedido, 'lineas': lineas})
-=======
-    return render(request, 'orders/pedido_detail.html', {'pedido': pedido})
->>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
 
 
 @login_required

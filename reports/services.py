@@ -25,8 +25,11 @@ def send_customer_order_documents(pedido):
         return False, 'El pedido se confirmó, pero no hay email configurado para el cliente.'
 
     generated_at = timezone.localtime()
+    lineas_validas = pedido.lineas.filter(cantidad__gt=0)
+
     common_context = {
         'pedido': pedido,
+        'lineas': lineas_validas,
         'generated_at': generated_at,
     }
 
@@ -38,8 +41,8 @@ def send_customer_order_documents(pedido):
 
     detalle_lineas = '\n'.join(
         f"- {linea.nombre_producto_snapshot}: {linea.cantidad:.2f} {linea.unidad_medida_snapshot} · {linea.total_con_iva:.2f} €"
-        for linea in pedido.lineas.all()
-    ) or '- Sin líneas de pedido'
+        for linea in lineas_validas
+    ) or '- Sin productos seleccionados'
 
     body = (
         f"Hola,\n\n"

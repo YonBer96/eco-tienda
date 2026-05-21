@@ -15,66 +15,47 @@
         <form method="post">
             {% csrf_token %}
 
-<<<<<<< HEAD
             {% if form.non_field_errors %}
                 <div class="alert alert-danger">
                     {{ form.non_field_errors }}
                 </div>
             {% endif %}
 
-=======
->>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
             <div class="row g-3">
 
                 <div class="col-md-6">
                     <label class="form-label">Nombre</label>
                     {{ form.nombre }}
-<<<<<<< HEAD
                     {{ form.nombre.errors }}
-=======
->>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
                 </div>
 
                 <div class="col-md-6">
                     <label class="form-label">NIF</label>
                     {{ form.nif }}
-<<<<<<< HEAD
                     {{ form.nif.errors }}
-=======
->>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
                 </div>
 
                 <div class="col-md-6">
                     <label class="form-label">Teléfono</label>
                     {{ form.telefono }}
-<<<<<<< HEAD
                     {{ form.telefono.errors }}
-=======
->>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
                 </div>
 
                 <div class="col-md-6">
                     <label class="form-label">Email</label>
                     {{ form.email }}
-<<<<<<< HEAD
                     {{ form.email.errors }}
-=======
->>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
                 </div>
 
                 <div class="col-md-6">
                     <label class="form-label">Dirección</label>
                     {{ form.direccion }}
-<<<<<<< HEAD
                     {{ form.direccion.errors }}
-=======
->>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
                 </div>
 
                 <div class="col-md-6">
                     <label class="form-label">Dirección de facturación</label>
                     {{ form.direccion_facturacion }}
-<<<<<<< HEAD
                     {{ form.direccion_facturacion.errors }}
                 </div>
 
@@ -97,11 +78,6 @@
                         {{ form.password2.errors }}
                     </div>
                 {% endif %}
-=======
-                </div>
-
-               
->>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
 
                 <div class="col-md-6 d-flex align-items-center">
                     <div class="form-check mt-4">
@@ -129,8 +105,4 @@
     </div>
 </div>
 
-<<<<<<< HEAD
 {% endblock %}
-=======
-{% endblock %}
->>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
