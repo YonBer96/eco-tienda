@@ -57,13 +57,13 @@ class Pedido(models.Model):
 
     class Meta:
         ordering = ['-creado_en']
-<<<<<<< HEAD
+
         
-=======
+
         constraints = [
             models.UniqueConstraint(fields=['ciclo', 'tienda'], name='unique_pedido_tienda_ciclo')
         ]
->>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
+
 
     def __str__(self):
         return f'Pedido #{self.id} - {self.cliente.nombre}'
