@@ -81,7 +81,11 @@
         </tr>
       </thead>
       <tbody>
+<<<<<<< HEAD
         {% for linea in lineas %}
+=======
+        {% for linea in pedido.lineas.all %}
+>>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
         <tr>
           <td>{{ linea.nombre_producto_snapshot }}</td>
           <td class="right-t">{{ linea.cantidad|qty2 }}</td>

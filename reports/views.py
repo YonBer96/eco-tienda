@@ -13,7 +13,17 @@ from django.utils import timezone
 from catalog.models import Producto, Proveedor
 from orders.models import LineaPedido, OrderCycle, Pedido
 from .forms import EmailDraftForm
+<<<<<<< HEAD
 from .utils import render_pdf, render_pdf_bytes
+=======
+from .utils import render_pdf
+from django.core.mail import EmailMessage
+from io import BytesIO
+from django.template.loader import render_to_string
+from xhtml2pdf import pisa
+from orders.models import OrderCycle
+from orders.models import OrderCycle
+>>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
 
 
 def quantize_2(value):
@@ -64,7 +74,11 @@ def build_weekly_summary(ciclo):
     formatos = _product_box_formats()
     resumen = list(
         LineaPedido.objects
+<<<<<<< HEAD
         .filter(pedido__ciclo=ciclo, pedido__estado=Pedido.CONFIRMADO, cantidad__gt=0)
+=======
+        .filter(pedido__ciclo=ciclo, pedido__estado=Pedido.CONFIRMADO)
+>>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
         .values('nombre_producto_snapshot', 'unidad_medida_snapshot')
         .annotate(total_cantidad=Sum('cantidad'))
         .order_by('nombre_producto_snapshot')
@@ -85,7 +99,11 @@ def build_supplier_summary(ciclo):
     formatos = _product_box_formats()
     lineas = list(
         LineaPedido.objects
+<<<<<<< HEAD
         .filter(pedido__ciclo=ciclo, pedido__estado=Pedido.CONFIRMADO, cantidad__gt=0)
+=======
+        .filter(pedido__ciclo=ciclo, pedido__estado=Pedido.CONFIRMADO)
+>>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
         .values(
             'proveedor_snapshot',
             'proveedor_snapshot__nombre',
@@ -145,6 +163,7 @@ def _email_setup_warning():
         return ''
     return 'El borrador funciona correctamente. Para que el envío sea real revisa la configuración SMTP del archivo .env.'
 
+<<<<<<< HEAD
 def _pedido_email_initial(pedido):
     destinatario = pedido.usuario.email or pedido.cliente.email
 
@@ -173,6 +192,30 @@ def _pedido_email_initial(pedido):
     return {
         'to': destinatario,
         'subject': f'Pedido confirmado #{pedido.id} · {pedido.cliente.nombre}',
+=======
+
+def _pedido_email_initial(pedido):
+    destinatario = pedido.usuario.email or pedido.cliente.email
+    detalle_lineas = '\n'.join(
+        f"- {linea.nombre_producto_snapshot}: {linea.cantidad:.2f} {linea.unidad_medida_snapshot} · {linea.total_con_iva:.2f} €"
+        for linea in pedido.lineas.all()
+    ) or '- Sin líneas de pedido'
+    body = (
+        f"Hola,\n\n"
+        f"Te envío el detalle del pedido #{pedido.id} correspondiente a {pedido.cliente.nombre}.\n\n"
+        f"Tienda: {pedido.tienda.nombre}\n"
+        f"Fecha: {timezone.localtime().strftime('%d/%m/%Y %H:%M')}\n\n"
+        f"Detalle del pedido:\n{detalle_lineas}\n\n"
+        f"Base imponible: {pedido.subtotal:.2f} €\n"
+        f"IVA: {pedido.total_iva:.2f} €\n"
+        f"Total: {pedido.total:.2f} €\n\n"
+        f"Quedo a tu disposición para cualquier aclaración.\n\n"
+        f"Un saludo."
+    )
+    return {
+        'to': destinatario,
+        'subject': f'Albarán pedido #{pedido.id} · {pedido.cliente.nombre}',
+>>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
         'body': body,
     }
 
@@ -219,7 +262,11 @@ def albaran_individual_pdf(request, pedido_id):
 
     response = render_pdf(
         'reports/albaran_individual.html',
+<<<<<<< HEAD
         {'pedido': pedido, 'lineas': pedido.lineas.filter(cantidad__gt=0), 'generated_at': timezone.localtime()},
+=======
+        {'pedido': pedido, 'generated_at': timezone.localtime()},
+>>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
         filename=f'albaran_pedido_{pedido.id}.pdf'
     )
 
@@ -239,7 +286,11 @@ def factura_pdf(request, pedido_id):
 
     response = render_pdf(
         'reports/factura.html',
+<<<<<<< HEAD
         {'pedido': pedido, 'lineas': pedido.lineas.filter(cantidad__gt=0), 'generated_at': timezone.localtime()},
+=======
+        {'pedido': pedido, 'generated_at': timezone.localtime()},
+>>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
         filename=f'factura_pedido_{pedido.id}.pdf'
     )
 
@@ -281,6 +332,7 @@ def enviar_albaran_email(request, pedido_id):
 
             if attach_pdf:
                 try:
+<<<<<<< HEAD
                    lineas_validas = pedido.lineas.filter(cantidad__gt=0)
 
                    context = {
@@ -306,6 +358,16 @@ def enviar_albaran_email(request, pedido_id):
                     )
                 except Exception as exc:
                     messages.error(request, f'No se pudieron generar los PDFs del pedido: {exc}')
+=======
+                    pdf_response = albaran_individual_pdf(request, pedido.id)
+                    email.attach(
+                        f'albaran_pedido_{pedido.id}.pdf',
+                        pdf_response.content,
+                        'application/pdf'
+                    )
+                except Exception as exc:
+                    messages.error(request, f'No se pudo generar el PDF del albarán: {exc}')
+>>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
                     return redirect('pedido_detail', pk=pedido.id)
 
             try:
@@ -317,7 +379,11 @@ def enviar_albaran_email(request, pedido_id):
                 if attach_pdf:
                     messages.success(
                         request,
+<<<<<<< HEAD
                         f'Correo enviado correctamente a {form.cleaned_data["to"]} con albarán y factura adjuntos.{extra}'
+=======
+                        f'Correo enviado correctamente a {form.cleaned_data["to"]} con el PDF adjunto.{extra}'
+>>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
                     )
                 else:
                     messages.success(

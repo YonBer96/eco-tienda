@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth import logout
+<<<<<<< HEAD
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.contrib.auth.views import PasswordChangeView
@@ -16,6 +17,22 @@ from .forms import (
     UserUpdateForm,
 )
 from .models import Cliente, Tienda
+=======
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import PasswordChangeView
+from django.shortcuts import redirect, render
+from django.urls import reverse_lazy
+
+from orders.models import Pedido
+from .models import Cliente
+
+from .forms import ProfileUpdateForm, UserUpdateForm
+
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import get_object_or_404
+from .models import Cliente, Tienda
+from .forms import ClienteForm, TiendaForm
+>>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
 
 
 @login_required
@@ -35,7 +52,10 @@ def admin_dashboard(request):
         'pedidos': Pedido.objects.count(),
         'pedidos_confirmados': Pedido.objects.filter(estado=Pedido.CONFIRMADO).count(),
         'clientes': Cliente.objects.count(),
+<<<<<<< HEAD
         'tiendas': Tienda.objects.count(),
+=======
+>>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
     }
     ultimos_pedidos = Pedido.objects.select_related('cliente', 'tienda', 'usuario').order_by('-creado_en')[:10]
     return render(request, 'accounts/admin_dashboard.html', {'stats': stats, 'ultimos_pedidos': ultimos_pedidos})
@@ -75,7 +95,10 @@ class CustomPasswordChangeView(PasswordChangeView):
         messages.success(self.request, 'La contraseña se ha cambiado correctamente.')
         return super().form_valid(form)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
 def admin_required(user):
     return user.is_superuser
 
@@ -83,13 +106,18 @@ def admin_required(user):
 @login_required
 @user_passes_test(admin_required)
 def cliente_list(request):
+<<<<<<< HEAD
     clientes = Cliente.objects.prefetch_related('tiendas', 'usuarios').all()
+=======
+    clientes = Cliente.objects.all()
+>>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
     return render(request, 'accounts/cliente_list.html', {'clientes': clientes})
 
 
 @login_required
 @user_passes_test(admin_required)
 def cliente_create(request):
+<<<<<<< HEAD
     form = ClienteCreateForm(request.POST or None)
 
     if form.is_valid():
@@ -108,6 +136,14 @@ def cliente_create(request):
         'titulo': 'Nuevo cliente',
         'modo_creacion': True,
     })
+=======
+    form = ClienteForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+        messages.success(request, 'Cliente creado correctamente.')
+        return redirect('cliente_list')
+    return render(request, 'accounts/cliente_form.html', {'form': form, 'titulo': 'Nuevo cliente'})
+>>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
 
 
 @login_required
@@ -115,17 +151,24 @@ def cliente_create(request):
 def cliente_update(request, pk):
     cliente = get_object_or_404(Cliente, pk=pk)
     form = ClienteForm(request.POST or None, instance=cliente)
+<<<<<<< HEAD
 
+=======
+>>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
     if form.is_valid():
         form.save()
         messages.success(request, 'Cliente actualizado correctamente.')
         return redirect('cliente_list')
+<<<<<<< HEAD
 
     return render(request, 'accounts/cliente_form.html', {
         'form': form,
         'titulo': 'Editar cliente',
         'modo_creacion': False,
     })
+=======
+    return render(request, 'accounts/cliente_form.html', {'form': form, 'titulo': 'Editar cliente'})
+>>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
 
 
 @login_required
@@ -135,6 +178,7 @@ def cliente_delete(request, pk):
     cliente.activo = False
     cliente.save(update_fields=['activo'])
     messages.warning(request, 'Cliente desactivado correctamente.')
+<<<<<<< HEAD
     return redirect('cliente_list')
 
 
@@ -186,3 +230,6 @@ def tienda_delete(request, pk):
     tienda.save(update_fields=['activa'])
     messages.warning(request, 'Tienda desactivada correctamente.')
     return redirect('tienda_list')
+=======
+    return redirect('cliente_list')
+>>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e

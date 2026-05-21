@@ -17,7 +17,11 @@
 
     {% if ciclo %}
     <a href="{% url 'albaran_por_proveedor_pdf' ciclo.id %}" class="btn btn-success">
+<<<<<<< HEAD
         Descargar albarán conjunto
+=======
+        Descargar PDF
+>>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
     </a>
     {% endif %}
 </div>
@@ -29,6 +33,7 @@
             <label class="form-label">Seleccionar ciclo</label>
             <select name="ciclo" class="form-select">
                 {% for c in ciclos %}
+<<<<<<< HEAD
                     {% if c.pk == ciclo_id %}
                         <option value="{{ c.pk }}" selected>
                     {% else %}
@@ -36,6 +41,11 @@
                     {% endif %}
                         {{ c.nombre }} — {{ c.inicio|date:"d/m/Y H:i" }} / {{ c.cierre|date:"d/m/Y H:i" }}
                     </option>
+=======
+                <option value="{{ c.pk }}" {% if ciclo.pk == c.pk %}selected{% endif %}>
+                    {{ c.nombre }} — {{ c.inicio|date:"d/m/Y H:i" }} / {{ c.cierre|date:"d/m/Y H:i" }}
+                </option>
+>>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
                 {% endfor %}
             </select>
         </div>
@@ -70,6 +80,7 @@
                 Total {{ supplier.total|qty2 }}
             </span>
 
+<<<<<<< HEAD
             {% if ciclo %}
             <a href="{% url 'supplier_single_pdf' supplier.id ciclo.id %}"
                class="btn btn-outline-success btn-sm">
@@ -77,6 +88,8 @@
             </a>
             {% endif %}
 
+=======
+>>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
             {% if supplier.email and ciclo %}
             <a href="{% url 'supplier_email_draft' supplier.id %}?ciclo_id={{ ciclo.id }}"
                class="btn btn-outline-secondary btn-sm">

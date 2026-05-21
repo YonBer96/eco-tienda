@@ -12,5 +12,8 @@ urlpatterns = [
     path('proveedores/pdf/', views.supplier_summary_pdf, name='supplier_summary_pdf'),
     path('ciclo/<int:ciclo_id>/general/pdf/', views.albaran_semanal_general_pdf, name='albaran_semanal_general_pdf'),
     path('ciclo/<int:ciclo_id>/proveedores/pdf/', views.albaran_por_proveedor_pdf, name='albaran_por_proveedor_pdf'),
+<<<<<<< HEAD
     path('ciclo/<int:ciclo_id>/proveedor/<int:proveedor_id>/pdf/', views.supplier_single_pdf, name='supplier_single_pdf'),
+=======
+>>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
 ]

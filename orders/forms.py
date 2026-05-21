@@ -26,6 +26,7 @@ class PedidoMetaForm(forms.ModelForm):
 
 
 class OrderCycleForm(forms.ModelForm):
+<<<<<<< HEAD
     DIAS = [
         ('lunes', 'Lunes'),
         ('martes', 'Martes'),
@@ -43,6 +44,8 @@ class OrderCycleForm(forms.ModelForm):
         label='Días de reparto'
     )
 
+=======
+>>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
     class Meta:
         model = OrderCycle
         fields = [
@@ -52,6 +55,7 @@ class OrderCycleForm(forms.ModelForm):
             'dias_reparto',
             'cerrado',
         ]
+<<<<<<< HEAD
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control'}),
             'inicio': forms.DateTimeInput(
@@ -73,3 +77,16 @@ class OrderCycleForm(forms.ModelForm):
     def clean_dias_reparto(self):
         dias = self.cleaned_data.get('dias_reparto') or []
         return ','.join(dias)
+=======
+
+        widgets = {
+            'inicio': forms.DateTimeInput(
+                attrs={'type': 'datetime-local'},
+                format='%Y-%m-%dT%H:%M'
+            ),
+            'cierre': forms.DateTimeInput(
+                attrs={'type': 'datetime-local'},
+                format='%Y-%m-%dT%H:%M'
+            ),
+        }
+>>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e

@@ -30,6 +30,7 @@
       <table class="table table-striped align-middle">
         <thead><tr><th>Producto</th><th>Proveedor</th><th>Cantidad</th><th>Unidad</th><th>Precio</th><th>IVA</th><th>Base</th><th>Total</th></tr></thead>
         <tbody>
+<<<<<<< HEAD
             {% for linea in lineas %}
             <tr>
                 <td data-label="Producto">{{ linea.nombre_producto_snapshot }}</td>
@@ -44,6 +45,22 @@
             {% empty %}
             <tr><td colspan="8" class="text-center text-muted">No hay líneas en este pedido.</td></tr>
             {% endfor %}
+=======
+          {% for linea in pedido.lineas.all %}
+          <tr>
+            <td data-label="Producto">{{ linea.nombre_producto_snapshot }}</td>
+            <td data-label="Proveedor">{{ linea.proveedor_snapshot.nombre }}</td>
+            <td data-label="Cantidad">{{ linea.cantidad|qty2 }}</td>
+            <td data-label="Unidad">{{ linea.unidad_medida_snapshot }}</td>
+            <td data-label="Precio">{{ linea.precio_unitario_snapshot|money }} €</td>
+            <td data-label="IVA">{{ linea.iva_snapshot|money }}%</td>
+            <td data-label="Subtotal">{{ linea.subtotal|money }} €</td>
+            <td data-label="Total">{{ linea.total_con_iva|money }} €</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="8" class="text-center text-muted">No hay líneas en este pedido.</td></tr>
+          {% endfor %}
+>>>>>>> 45f9c18fbb29f537da3f8aac6bda6a0f91f3283e
         </tbody>
       </table>
     </div>
